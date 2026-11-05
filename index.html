@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Online professional and continuing medical education courses.">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+<title>Health Path</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@500;700;800;900&family=Overpass+Mono:wght@500;600&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+/* Layout: hospital wayfinding — each course category is a colored floor line that leads somewhere.
+   Sticky top bar, routed single-page views, wide content column (1180px). */
+:root{
+  --bg:#F3F6F5; --surface:#FFFFFF; --surface-2:#E9EEEC; --ink:#12232A; --muted:#55686D; --line:#D6DFDC;
+  --accent:#0B6B5C; --accent-ink:#FFFFFF; --accent-soft:#DDEFEA; --focus:#1F6FB2;
+  --ok:#1E7A4F; --warn:#9A6200; --bad:#B3362E; --ok-soft:#DDF1E6; --warn-soft:#FBEED3; --bad-soft:#F8E0DD;
+  --c-nursing:#1F6FB2; --c-cme:#6A4BA3; --c-allied:#C47A10; --c-life:#C93C35; --c-compliance:#4D6976; --c-behavioral:#16866A;
+  --f-display:"Overpass","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"Overpass Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:10px; --shadow:0 1px 2px rgba(18,35,42,.06),0 8px 24px -12px rgba(18,35,42,.18);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1618; --surface:#142124; --surface-2:#1B2B2F; --ink:#E4EDEB; --muted:#93A7A8; --line:#25393D;
+  --accent:#43B9A2; --accent-ink:#04201A; --accent-soft:#123A33; --focus:#7DB7F0;
+  --ok:#5CCB93; --warn:#E7B04F; --bad:#F08A80; --ok-soft:#133627; --warn-soft:#3A2D12; --bad-soft:#3E1D1A;
+  --c-nursing:#5FA5E6; --c-cme:#A78BDB; --c-allied:#E7A64A; --c-life:#EC7A70; --c-compliance:#8FAAB6; --c-behavioral:#4DC4A0;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1618; --surface:#142124; --surface-2:#1B2B2F; --ink:#E4EDEB; --muted:#93A7A8; --line:#25393D;
+  --accent:#43B9A2; --accent-ink:#04201A; --accent-soft:#123A33; --focus:#7DB7F0;
+  --ok:#5CCB93; --warn:#E7B04F; --bad:#F08A80; --ok-soft:#133627; --warn-soft:#3A2D12; --bad-soft:#3E1D1A;
+  --c-nursing:#5FA5E6; --c-cme:#A78BDB; --c-allied:#E7A64A; --c-life:#EC7A70; --c-compliance:#8FAAB6; --c-behavioral:#4DC4A0;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--surface)}
+a{color:var(--accent);text-underline-offset:3px}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.08;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:900}
+h2{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800}
+h3{font-size:1.25rem;font-weight:800}
+h4{font-size:1rem;font-weight:700}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+.num{font-variant-numeric:tabular-nums}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid transparent;background:var(--accent);color:var(--accent-ink);font-family:var(--f-display);font-weight:800;font-size:1rem;letter-spacing:.01em;padding:.72em 1.2em .62em;border-radius:999px;cursor:pointer;text-decoration:none;transition:transform .15s,background .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ink)}
+.btn.sm{font-size:.88rem;padding:.5em .95em .42em}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+/* preview notice + header */
+.notice{background:var(--surface-2);font-size:.82rem;color:var(--muted)}
+.notice .wrap{display:flex;gap:12px;align-items:center;justify-content:space-between;padding-block:7px}
+.notice button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--surface);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:20px;height:66px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-family:var(--f-display);font-weight:900;font-size:1.3rem;letter-spacing:-.02em;flex-shrink:0}
+.logo svg{width:34px;height:34px}
+nav.main{display:flex;gap:4px;margin-left:8px}
+nav.main a{color:var(--ink);text-decoration:none;font-weight:600;font-size:.94rem;padding:8px 11px;border-radius:8px}
+nav.main a:hover{background:var(--surface-2)}
+nav.main a.on{color:var(--accent)}
+.hdr-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.iconbtn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;text-decoration:none}
+.iconbtn svg{width:20px;height:20px}
+.badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--c-life);color:#fff;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono)}
+.menu-toggle{display:none}
+@media (max-width:980px){
+  nav.main{display:none;position:absolute;left:0;right:0;top:66px;background:var(--surface);flex-direction:column;padding:8px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line);margin:0}
+  nav.main.open{display:flex}
+  .menu-toggle{display:inline-flex}
+  .hdr-signin{display:none}
+}
+
+main{min-height:60vh}
+section{padding-block:56px}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.sec-head p{max-width:60ch}
+
+/* hero */
+.hero{padding-block:48px 56px;background:var(--surface);border-bottom:1px solid var(--line)}
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+.hero h1 span{color:var(--accent)}
+.hero .lede{font-size:1.15rem;max-width:52ch;color:var(--muted);margin-top:18px}
+.hero-search{display:flex;gap:8px;margin-top:26px;max-width:520px}
+.hero-search input{flex:1;min-width:0}
+.hero-facts{display:flex;gap:28px;margin-top:28px;flex-wrap:wrap}
+.hero-facts div{display:flex;flex-direction:column}
+.hero-facts b{font-family:var(--f-display);font-size:1.6rem;font-weight:900}
+.hero-facts span{font-size:.85rem;color:var(--muted)}
+@media (max-width:900px){.hero .wrap{grid-template-columns:1fr;gap:32px}}
+
+/* wayfinding lines */
+.wayfind{display:flex;flex-direction:column;gap:6px;padding:22px 0}
+.wayfind .cap{display:flex;justify-content:space-between;margin-bottom:6px}
+.wf{--c:var(--accent);display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px;text-decoration:none;color:var(--ink);padding:9px 0;position:relative}
+.wf .tape{display:block;height:14px;border-radius:999px;background:var(--c);position:relative;transform-origin:left;animation:grow .9s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i)*70ms)}
+.wf .tape::after{content:"";position:absolute;right:-2px;top:50%;width:0;height:0;border-left:14px solid var(--c);border-top:12px solid transparent;border-bottom:12px solid transparent;transform:translate(100%,-50%);transition:transform .2s}
+.wf .lbl{display:flex;flex-direction:column;min-width:170px;padding-left:16px}
+.wf .lbl b{font-family:var(--f-display);font-weight:800;font-size:1.05rem}
+.wf .lbl small{color:var(--muted);font-size:.8rem}
+.wf:hover .tape::after{transform:translate(calc(100% + 6px),-50%)}
+@keyframes grow{from{transform:scaleX(.15)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* forms */
+label.f{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:.9rem;min-width:0}
+label.f span.hint{font-weight:400;color:var(--muted);font-size:.8rem}
+input[type=text],input[type=email],input[type=password],input[type=search],input[type=tel],input[type=number],select,textarea{width:100%;background:var(--surface);border:1.5px solid var(--line);border-radius:8px;padding:.62em .8em;font-size:1rem;min-width:0}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+input.err,select.err{border-color:var(--bad)}
+.ferr{color:var(--bad);font-size:.8rem;font-weight:500}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:620px){.grid2,.grid3{grid-template-columns:1fr}}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.9rem}
+.check input{margin-top:4px;accent-color:var(--accent);width:18px;height:18px;flex-shrink:0}
+
+/* category chip + course cards */
+.cat{--c:var(--accent);display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.cat::before{content:"";width:22px;height:6px;border-radius:999px;background:var(--c)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:var(--ink);transition:border-color .15s,box-shadow .15s;min-width:0}
+.card:hover{border-color:var(--ink);box-shadow:var(--shadow)}
+.card h3{font-size:1.15rem}
+.card .sum{color:var(--muted);font-size:.92rem;flex:1}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--ink);white-space:nowrap}
+.pill.hrs{background:var(--accent-soft);color:var(--accent)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.card .foot{display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--line);padding-top:12px}
+.price{font-family:var(--f-display);font-weight:900;font-size:1.35rem}
+.price small{font-family:var(--f-body);font-weight:500;font-size:.75rem;color:var(--muted)}
+
+/* how it works */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;counter-reset:s;border-top:3px solid var(--ink)}
+.steps li{list-style:none;padding:20px 20px 0 0;position:relative}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;top:-17px;left:0;width:30px;height:30px;border-radius:999px;background:var(--ink);color:var(--bg);font-family:var(--f-display);font-weight:900;display:flex;align-items:center;justify-content:center;padding-top:3px}
+.steps h4{margin:14px 0 6px;font-size:1.08rem}
+.steps p{color:var(--muted);font-size:.92rem}
+ol.steps{padding:0;margin:0}
+@media (max-width:760px){.steps{grid-template-columns:1fr 1fr;row-gap:36px}}
+@media (max-width:440px){.steps{grid-template-columns:1fr}}
+
+/* bands */
+.band{background:var(--ink);color:var(--bg)}
+.band .muted{color:color-mix(in srgb,var(--bg) 70%,var(--ink))}
+.band .btn{background:var(--bg);color:var(--ink)}
+.band .btn.ghost{background:transparent;color:var(--bg);border-color:color-mix(in srgb,var(--bg) 40%,var(--ink))}
+.pay-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.pay-item{border:1px solid var(--line);border-radius:var(--r);padding:18px;background:var(--surface);display:flex;flex-direction:column;gap:6px}
+.pay-item svg{width:28px;height:28px;color:var(--accent)}
+.pay-item p{font-size:.9rem;color:var(--muted)}
+
+/* plans */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
+@media (max-width:900px){.plans{grid-template-columns:1fr}}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:26px;display:flex;flex-direction:column;gap:14px;color:var(--ink)}
+.plan.feat{border:2px solid var(--accent)}
+.plan .amt{font-family:var(--f-display);font-weight:900;font-size:2.4rem;line-height:1}
+.plan ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;flex:1}
+.plan li{display:flex;gap:10px;font-size:.93rem}
+.plan li::before{content:"";flex-shrink:0;width:16px;height:16px;margin-top:4px;border-radius:999px;background:var(--accent-soft);box-shadow:inset 0 0 0 4px var(--accent)}
+
+/* catalog */
+.catalog{display:grid;grid-template-columns:250px 1fr;gap:32px;align-items:start}
+.filters{position:sticky;top:calc(env(safe-area-inset-top,0px) + 86px);display:flex;flex-direction:column;gap:22px}
+.filters fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:4px}
+.filters legend{margin-bottom:8px}
+.fopt{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:.93rem}
+.fopt:hover{background:var(--surface-2)}
+.fopt input{accent-color:var(--accent)}
+.fopt .n{margin-left:auto;color:var(--muted);font-family:var(--f-mono);font-size:.8rem}
+.fopt .sw{width:18px;height:6px;border-radius:999px;background:var(--c,var(--muted))}
+.toolbar{display:flex;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.toolbar input{flex:1;min-width:200px}
+.toolbar select{width:auto}
+@media (max-width:860px){.catalog{grid-template-columns:1fr}.filters{position:static;display:grid;grid-template-columns:1fr 1fr;gap:14px}}
+@media (max-width:480px){.filters{grid-template-columns:1fr}}
+.empty{border:1.5px dashed var(--line);border-radius:var(--r);padding:36px;text-align:center;color:var(--muted)}
+
+/* course detail */
+.crumbs{font-size:.85rem;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.crumbs a{color:var(--muted)}
+.cd-top{background:var(--surface);border-bottom:1px solid var(--line);padding-block:36px 40px;position:relative}
+.cd-top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:6px;background:var(--c)}
+.cd-grid{display:grid;grid-template-columns:1fr 360px;gap:40px;align-items:start}
+@media (max-width:900px){.cd-grid{grid-template-columns:1fr}}
+.cd-top .lede{font-size:1.1rem;color:var(--muted);margin-top:14px;max-width:62ch}
+.buybox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow)}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:.92rem;margin:0}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;font-weight:600;text-align:right}
+.qty{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;width:max-content}
+.qty button{width:38px;height:38px;border:0;background:transparent;cursor:pointer;font-size:1.1rem}
+.qty input{width:52px;text-align:center;border:0;padding:0;background:transparent;-moz-appearance:textfield}
+.qty input::-webkit-inner-spin-button{-webkit-appearance:none}
+.modules{list-style:none;margin:0;padding:0;border-left:3px solid var(--c);display:flex;flex-direction:column}
+.modules li{position:relative;padding:12px 0 12px 24px}
+.modules li::before{content:"";position:absolute;left:-9px;top:17px;width:15px;height:15px;border-radius:999px;background:var(--surface);border:3px solid var(--c)}
+.modules li small{color:var(--muted);font-family:var(--f-mono);font-size:.78rem}
+.outcomes{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.statement{border:1px solid var(--line);border-radius:var(--r);padding:16px;font-size:.88rem;color:var(--muted);background:var(--surface)}
+.content-col{display:flex;flex-direction:column;gap:36px;min-width:0}
+.content-col section{padding:0}
+
+/* cart & checkout */
+.co-grid{display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:start}
+@media (max-width:900px){.co-grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.panel h3{display:flex;align-items:center;gap:10px}
+.panel h3 .stepn{width:28px;height:28px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:.9rem;display:inline-flex;align-items:center;justify-content:center;padding-top:2px}
+.line{display:grid;grid-template-columns:1fr auto;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);align-items:center}
+.line:last-child{border-bottom:0}
+.line .t{font-weight:700;font-family:var(--f-display);font-size:1.05rem}
+.line .ctrls{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.totals{display:grid;grid-template-columns:1fr auto;gap:8px;font-size:.95rem}
+.totals .grand{font-family:var(--f-display);font-weight:900;font-size:1.4rem;border-top:2px solid var(--ink);padding-top:10px;margin-top:4px}
+.totals .disc{color:var(--ok)}
+.paymethods{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.pm{position:relative;border:1.5px solid var(--line);border-radius:var(--r);padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:4px;font-size:.88rem}
+.pm b{font-family:var(--f-display);font-size:1rem}
+.pm small{color:var(--muted)}
+.pm input{position:absolute;opacity:0}
+.pm:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.pm:has(input:disabled){opacity:.45;cursor:not-allowed}
+.pm:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.schedule{width:100%;border-collapse:collapse;font-size:.9rem}
+.schedule td{padding:7px 0;border-bottom:1px dashed var(--line)}
+.schedule td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.alert{border-radius:8px;padding:12px 14px;font-size:.9rem}
+.alert.info{background:var(--accent-soft);color:var(--ink)}
+.alert.warn{background:var(--warn-soft);color:var(--ink)}
+.alert.bad{background:var(--bad-soft);color:var(--ink)}
+.secure{display:flex;gap:8px;align-items:center;font-size:.82rem;color:var(--muted)}
+.secure svg{width:16px;height:16px}
+
+/* dashboard */
+.dash-grid{display:grid;grid-template-columns:320px 1fr;gap:28px;align-items:start}
+@media (max-width:900px){.dash-grid{grid-template-columns:1fr}}
+.meter{height:14px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:999px}
+.enr{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:18px 0;border-bottom:1px solid var(--line)}
+.enr:last-child{border-bottom:0}
+.enr .meter{height:8px;margin-top:10px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.tabs button{background:none;border:0;padding:10px 14px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;color:var(--muted)}
+.tabs button.on{color:var(--ink);border-color:var(--accent)}
+table.orders{width:100%;border-collapse:collapse;font-size:.9rem}
+table.orders th{text-align:left;font-weight:600;color:var(--muted);padding:8px 10px 8px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+table.orders td{padding:10px 10px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tablewrap{overflow-x:auto}
+
+/* faq */
+details.q{border-bottom:1px solid var(--line);padding:16px 0}
+details.q summary{cursor:pointer;font-family:var(--f-display);font-weight:800;font-size:1.08rem;list-style:none;display:flex;justify-content:space-between;gap:16px}
+details.q summary::after{content:"+";font-size:1.4rem;line-height:1;color:var(--accent)}
+details.q[open] summary::after{content:"–"}
+details.q p{margin-top:10px;color:var(--muted);max-width:72ch}
+
+/* modal + toast */
+.modal{position:fixed;inset:0;z-index:100;background:rgba(8,16,18,.55);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.modal .box{background:var(--surface);border-radius:14px;max-width:760px;width:100%;max-height:100%;overflow:auto;padding:24px;display:flex;flex-direction:column;gap:16px}
+.cert{border:2px solid var(--ink);padding:6px;background:var(--surface)}
+.cert .in{border:1px solid var(--line);padding:clamp(18px,4vw,40px);text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center;position:relative;overflow:hidden}
+.cert .in::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;background:linear-gradient(90deg,var(--c-nursing) 0 16.6%,var(--c-cme) 0 33.3%,var(--c-allied) 0 50%,var(--c-life) 0 66.6%,var(--c-compliance) 0 83.3%,var(--c-behavioral) 0)}
+.cert .who{font-family:var(--f-display);font-weight:900;font-size:clamp(1.6rem,4vw,2.4rem)}
+.cert .cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;margin-top:10px;font-size:.85rem}
+.cert .cgrid div{border-top:1px solid var(--line);padding-top:8px}
+@media (max-width:520px){.cert .cgrid{grid-template-columns:1fr}}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:999px;font-weight:600;z-index:120;box-shadow:var(--shadow);max-width:calc(100% - 32px);font-size:.92rem}
+
+/* footer */
+footer{background:var(--surface);border-top:1px solid var(--line);margin-top:40px}
+footer .wrap{padding-block:44px 28px}
+.fgrid{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:28px}
+@media (max-width:760px){.fgrid{grid-template-columns:1fr 1fr}}
+footer h4{font-size:.85rem;margin-bottom:10px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+footer ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+footer ul a{color:var(--ink);text-decoration:none}
+footer ul a:hover{text-decoration:underline}
+.legal{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:32px;padding-top:18px;font-size:.8rem;color:var(--muted)}
+.theme-btn{background:none;border:1px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer;color:var(--muted);font-size:.8rem}
+.org-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:start}
+@media (max-width:860px){.org-grid{grid-template-columns:1fr}}
+.feature-list{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:560px){.feature-list{grid-template-columns:1fr}}
+.feature-list div{border-top:2px solid var(--ink);padding-top:12px}
+.feature-list p{color:var(--muted);font-size:.92rem;margin-top:6px}
+.prose{max-width:70ch;display:flex;flex-direction:column;gap:14px}
+.prose p{color:var(--ink)}
+</style>
+
+</head>
+<body>
+<div class="notice" id="notice"><div class="wrap"><span><b>Preview build.</b> Registrations stay in this browser and payments are simulated. No card is charged.</span><button aria-label="Dismiss notice" data-act="dismiss-notice">×</button></div></div>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#home" aria-label="Health Path home">
+      <svg viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="var(--accent)"/><path d="M8 25V15a4 4 0 0 1 4-4h10" stroke="var(--accent-ink)" stroke-width="3.2" fill="none" stroke-linecap="round"/><path d="M19 7l4.5 4-4.5 4" stroke="var(--accent-ink)" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 25h12" stroke="var(--accent-ink)" stroke-width="3.2" stroke-linecap="round"/><path d="M20 19v12" stroke="var(--accent-ink)" stroke-width="3.2" stroke-linecap="round" transform="translate(0 -3)"/></svg>
+      Health Path
+    </a>
+    <nav class="main" id="nav" aria-label="Main">
+      <a href="#catalog" data-nav="catalog">Courses</a>
+      <a href="#pricing" data-nav="pricing">Memberships</a>
+      <a href="#organizations" data-nav="organizations">For organizations</a>
+      <a href="#accreditation" data-nav="accreditation">Accreditation</a>
+      <a href="#faq" data-nav="faq">FAQ</a>
+      <a href="#contact" data-nav="contact">Contact</a>
+    </nav>
+    <div class="hdr-actions">
+      <a class="btn ghost sm hdr-signin" id="hdrAccount" href="#account">Sign in</a>
+      <a class="iconbtn" href="#cart" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20.5" r="1.2"/><circle cx="17" cy="20.5" r="1.2"/></svg><span class="badge" id="cartCount" hidden>0</span></a>
+      <button class="iconbtn menu-toggle" aria-label="Menu" aria-expanded="false" data-act="menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div class="stack">
+        <a class="logo" href="#home"><svg viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="var(--accent)"/><path d="M8 25V15a4 4 0 0 1 4-4h10" stroke="var(--accent-ink)" stroke-width="3.2" fill="none" stroke-linecap="round"/><path d="M19 7l4.5 4-4.5 4" stroke="var(--accent-ink)" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Health Path</a>
+        <p class="muted" style="font-size:.92rem;max-width:36ch">Online professional and continuing education for nurses, physicians, advanced practice providers and allied health teams.</p>
+      </div>
+      <div><h4>Learn</h4><ul><li><a href="#catalog">All courses</a></li><li><a href="#catalog-nursing">Nursing CE</a></li><li><a href="#catalog-cme">Physician &amp; APP CME</a></li><li><a href="#catalog-allied">Career programs</a></li><li><a href="#catalog-life">Life support</a></li></ul></div>
+      <div><h4>Enroll</h4><ul><li><a href="#pricing">Memberships</a></li><li><a href="#organizations">Group &amp; employer billing</a></li><li><a href="#account">Create an account</a></li><li><a href="#dashboard">My learning</a></li></ul></div>
+      <div><h4>About</h4><ul><li><a href="#accreditation">Accreditation &amp; credits</a></li><li><a href="#policies">Refunds &amp; policies</a></li><li><a href="#faq">FAQ</a></li><li><a href="#contact">Contact</a></li></ul></div>
+    </div>
+    <div class="legal"><span>© 2026 Health Path. Course content is for professional education and does not replace clinical judgment or your facility's policies.</span><button class="theme-btn" data-act="theme" id="themeBtn">Theme: system</button></div>
+  </div>
+</footer>
+
+<div id="layer"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- data ---------- */
+const CATS = {
+  nursing:{name:"Nursing CE",short:"Nursing",blurb:"Contact hours for RN, LPN and APRN renewal",color:"var(--c-nursing)"},
+  cme:{name:"Physician & APP CME",short:"CME",blurb:"Prescribing, pharmacology and clinical updates",color:"var(--c-cme)"},
+  allied:{name:"Career Programs",short:"Allied health",blurb:"Certification prep for new healthcare careers",color:"var(--c-allied)"},
+  life:{name:"Life Support & Emergency",short:"Life support",blurb:"Online theory with an in-person skills check",color:"var(--c-life)"},
+  compliance:{name:"Compliance & Safety",short:"Compliance",blurb:"Annual training required by employers",color:"var(--c-compliance)"},
+  behavioral:{name:"Behavioral Health",short:"Behavioral",blurb:"Assessment, counseling and crisis skills",color:"var(--c-behavioral)"}
+};
+const FORMATS = ["On-demand","Live webinar","Blended","Online program"];
+const C = [
+ {id:"sepsis-early-recognition",t:"Early Recognition of Sepsis",cat:"nursing",fmt:"On-demand",hrs:2,credit:"contact hours",dur:"2 hours, self-paced",price:29,level:"Intermediate",lead:"Critical care nurse educator, MSN, RN, CCRN",feat:1,
+  sum:"Spot sepsis before it becomes septic shock. Covers screening tools, the hour-1 bundle and escalation conversations with providers.",
+  aud:"RNs and LPNs in acute care, emergency, med-surg and home health.",
+  out:["Apply qSOFA and SIRS screening criteria to patient scenarios","Sequence the hour-1 bundle and explain the rationale for each element","Use SBAR to escalate a deteriorating patient"],
+  mods:[["Pathophysiology of the dysregulated host response",25],["Screening tools and their limits",30],["The hour-1 bundle in practice",35],["Case studies and escalation",30]]},
+ {id:"pressure-injury-wound-assessment",t:"Pressure Injury Prevention & Wound Assessment",cat:"nursing",fmt:"On-demand",hrs:3,credit:"contact hours",dur:"3 hours, self-paced",price:39,level:"Intermediate",lead:"Certified wound care nurse, BSN, RN, CWCN",
+  sum:"Stage pressure injuries correctly, document them defensibly, and build a prevention plan using the Braden Scale.",
+  aud:"Nurses in long-term care, acute care and home health.",
+  out:["Stage pressure injuries using current NPIAP definitions","Score risk with the Braden Scale and select interventions","Document wound measurements, tissue type and drainage"],
+  mods:[["Skin anatomy and injury mechanics",30],["Staging with photo practice",50],["Braden Scale and prevention bundles",50],["Documentation and measurement",50]]},
+ {id:"implicit-bias-healthcare",t:"Implicit Bias in Healthcare",cat:"nursing",fmt:"On-demand",hrs:2,credit:"contact hours",dur:"2 hours, self-paced",price:25,level:"All levels",lead:"Health equity educator, DNP, RN",
+  sum:"Meets implicit bias training requirements in several U.S. states. Examines how bias shapes clinical decisions and what reduces its effect.",
+  aud:"All licensed nurses and clinicians. Check your board for the exact requirement.",
+  out:["Describe how implicit bias affects assessment and treatment","Identify disparities in pain management and maternal outcomes","Apply three strategies that reduce bias at the bedside"],
+  mods:[["What implicit bias is and is not",30],["Evidence on disparities in care",30],["Strategies for individuals and teams",40],["Reflection exercise",20]]},
+ {id:"recognizing-abuse",t:"Recognizing Domestic, Child & Elder Abuse",cat:"nursing",fmt:"On-demand",hrs:2,credit:"contact hours",dur:"2 hours, self-paced",price:29,level:"All levels",lead:"Forensic nurse examiner, MSN, RN, SANE-A",
+  sum:"Recognize signs of abuse and neglect across the lifespan, and understand mandated reporting obligations.",
+  aud:"Nurses and allied health professionals who are mandated reporters.",
+  out:["Recognize physical and behavioral indicators of abuse","Screen privately and document in the patient's own words","Explain mandated reporting steps and timelines"],
+  mods:[["Intimate partner violence",30],["Child maltreatment",30],["Elder abuse and neglect",30],["Reporting and documentation",30]]},
+ {id:"advanced-pharmacology-update",t:"Advanced Pharmacology Update 2026",cat:"cme",fmt:"On-demand",hrs:6,credit:"CME / pharmacology hours",dur:"6 hours, self-paced",price:119,level:"Advanced",lead:"Clinical pharmacist, PharmD, BCPS, with nurse practitioner faculty",feat:1,
+  sum:"New approvals, updated guidelines and prescribing pitfalls across cardiometabolic, infectious disease and psychiatric drug classes.",
+  aud:"Physicians, NPs and PAs who need pharmacology hours for license or certification renewal.",
+  out:["Compare GLP-1 and dual-agonist therapies for diabetes and obesity","Select antimicrobials using local antibiogram data and stewardship principles","Recognize high-risk interactions in older adults using the Beers Criteria"],
+  mods:[["Cardiometabolic agents",90],["Antimicrobial stewardship",75],["Psychopharmacology updates",75],["Older adults and deprescribing",60],["Case-based assessment",60]]},
+ {id:"safe-opioid-prescribing",t:"Safe Opioid Prescribing & Pain Management",cat:"cme",fmt:"On-demand",hrs:3,credit:"CME hours",dur:"3 hours, self-paced",price:69,level:"Intermediate",lead:"Pain medicine physician, MD",
+  sum:"Covers risk assessment, tapering, naloxone co-prescribing and treatment of opioid use disorder. Fulfills common state controlled-substance education requirements.",
+  aud:"Prescribers with controlled-substance registration: MD, DO, NP, PA, DDS.",
+  out:["Apply current CDC clinical practice guidance to initiation and tapering","Use prescription drug monitoring program data in decisions","Identify candidates for buprenorphine and refer or initiate treatment"],
+  mods:[["Pain assessment and non-opioid options",45],["Risk screening and PDMP use",45],["Tapering and naloxone",45],["Opioid use disorder treatment",45]]},
+ {id:"diabetes-management-primary-care",t:"Diabetes Management in Primary Care",cat:"cme",fmt:"Live webinar",hrs:4,credit:"CME hours",dur:"4 hours, one session",price:89,level:"Intermediate",lead:"Endocrinologist, MD, FACE",next:"2026-11-14",time:"9:00 AM – 1:00 PM ET",
+  sum:"A live, case-driven session on glycemic targets, CGM interpretation and medication intensification, with Q&A throughout.",
+  aud:"Primary care physicians, NPs, PAs and diabetes educators.",
+  out:["Individualize A1C targets by patient factors","Read an ambulatory glucose profile report","Choose the next agent when metformin is not enough"],
+  mods:[["Targets and individualization",60],["CGM and the AGP report",60],["Intensification pathways",60],["Live case discussion",60]]},
+ {id:"bls-provider-blended",t:"BLS Provider (Blended)",cat:"life",fmt:"Blended",hrs:4,credit:"hours",dur:"About 2 hours online + 1.5 hour skills check",price:65,level:"All levels",lead:"Certified life support instructor, EMT-P",feat:1,next:"2026-10-24",time:"Skills checks every Saturday",
+  sum:"Adult, child and infant CPR, AED use and choking relief. Finish the theory online, then book a hands-on skills check to receive your card.",
+  aud:"Nurses, students, medical assistants and anyone whose employer requires BLS.",
+  out:["Deliver high-quality chest compressions at the correct rate and depth","Use an AED safely within the first minutes of arrest","Perform two-rescuer CPR with bag-mask ventilation"],
+  mods:[["Chain of survival",20],["Adult CPR and AED",40],["Child and infant CPR",35],["Choking relief",15],["Skills check (in person)",90]]},
+ {id:"acls-provider-blended",t:"Advanced Cardiovascular Life Support (Blended)",cat:"life",fmt:"Blended",hrs:12,credit:"hours",dur:"About 8 hours online + 4 hour skills check",price:195,level:"Advanced",lead:"Emergency physician, MD, with paramedic instructors",next:"2026-11-07",time:"Skills checks twice a month",
+  sum:"Rhythm recognition, pharmacology and megacode practice for cardiac arrest, bradycardia, tachycardia and post-arrest care.",
+  aud:"ED, ICU, telemetry and procedural nurses; physicians; paramedics.",
+  out:["Interpret ECG rhythms and choose the matching algorithm","Lead a resuscitation team with closed-loop communication","Manage post-cardiac arrest care"],
+  mods:[["Systematic approach and BLS review",60],["Rhythms and electrical therapy",120],["Pharmacology",90],["Algorithms and megacode practice",150],["Skills check (in person)",240]]},
+ {id:"pals-provider-blended",t:"Pediatric Advanced Life Support (Blended)",cat:"life",fmt:"Blended",hrs:12,credit:"hours",dur:"About 8 hours online + 4 hour skills check",price:195,level:"Advanced",lead:"Pediatric emergency nurse, MSN, RN, CPEN",next:"2026-11-21",time:"Skills checks monthly",
+  sum:"Assessment and resuscitation of infants and children in respiratory distress, shock and cardiac arrest.",
+  aud:"Pediatric, ED and PICU clinicians.",
+  out:["Use the pediatric assessment triangle","Differentiate respiratory distress from failure","Calculate weight-based drug doses during resuscitation"],
+  mods:[["Pediatric assessment",90],["Respiratory emergencies",90],["Shock",90],["Arrhythmias and arrest",120],["Skills check (in person)",240]]},
+ {id:"bleeding-control",t:"Bleeding Control Basics",cat:"life",fmt:"On-demand",hrs:1.5,credit:"hours",dur:"90 minutes, self-paced",price:35,level:"All levels",lead:"Trauma nurse, BSN, RN, TCRN",
+  sum:"Direct pressure, wound packing and tourniquet use for life-threatening bleeding before EMS arrives.",
+  aud:"Clinical and non-clinical staff, school and workplace responders.",
+  out:["Recognize life-threatening bleeding","Apply a commercial tourniquet correctly","Pack a junctional wound"],
+  mods:[["Recognizing life-threatening bleeding",25],["Tourniquets",35],["Wound packing and pressure",30]]},
+ {id:"phlebotomy-technician",t:"Phlebotomy Technician Program",cat:"allied",fmt:"Online program",hrs:null,credit:"Certificate + national exam prep",dur:"8 weeks online + 40 clinical hours",price:1450,level:"Beginner",lead:"Laboratory supervisor, MLS(ASCP)",feat:1,next:"2026-11-09",time:"Cohort starts monthly",
+  sum:"Venipuncture, capillary collection, order of draw and specimen handling, ending with a supervised externship and exam preparation.",
+  aud:"Career starters and healthcare workers adding a skill. High school diploma or equivalent required.",
+  out:["Perform venipuncture using correct order of draw","Handle, label and process specimens to prevent rejection","Sit for a national phlebotomy certification exam"],
+  mods:[["Anatomy, safety and infection control",600],["Venipuncture and capillary technique",900],["Special collections and processing",600],["Externship: 40 supervised hours",2400],["Exam review and practice tests",480]]},
+ {id:"ekg-technician",t:"EKG Technician Program",cat:"allied",fmt:"Online program",hrs:null,credit:"Certificate + national exam prep",dur:"4 weeks online + skills lab",price:890,level:"Beginner",lead:"Cardiac monitor technician, CCT",next:"2026-11-02",time:"Cohort starts every 4 weeks",
+  sum:"Lead placement, 12-lead acquisition, rhythm strip interpretation and Holter monitoring.",
+  aud:"New learners, medical assistants and patient care technicians.",
+  out:["Place electrodes for a 12-lead EKG","Identify sinus, atrial and ventricular rhythms","Recognize artifact and critical rhythms that need escalation"],
+  mods:[["Cardiac anatomy and conduction",360],["12-lead acquisition",420],["Rhythm interpretation",600],["Ambulatory monitoring and exam review",420]]},
+ {id:"clinical-medical-assistant",t:"Clinical Medical Assistant Program",cat:"allied",fmt:"Online program",hrs:null,credit:"Certificate + national exam prep",dur:"24 weeks online + 160 hour externship",price:3600,level:"Beginner",lead:"Program director, CMA, BSHA",next:"2026-11-09",time:"Cohort starts quarterly",
+  sum:"Vital signs, injections, EKG, phlebotomy, exam room workflow and EHR documentation, with an externship in a partner clinic.",
+  aud:"Career changers and new graduates seeking an entry-level clinical role.",
+  out:["Prepare patients and assist with exams and procedures","Administer injections and perform point-of-care testing","Document accurately in an electronic health record"],
+  mods:[["Medical terminology and anatomy",1800],["Clinical procedures",2400],["Pharmacology and injections",1200],["Phlebotomy and EKG",1200],["EHR and front office",900],["Externship: 160 hours",9600]]},
+ {id:"medical-billing-coding",t:"Medical Billing & Coding Program",cat:"allied",fmt:"Online program",hrs:null,credit:"Certificate + coding exam prep",dur:"12 weeks, online",price:2200,level:"Beginner",lead:"Certified professional coder, CPC, CRC",next:"2026-11-02",time:"Cohort starts monthly",
+  sum:"ICD-10-CM, CPT and HCPCS coding, claim submission and denial management, with practice charts from real specialties.",
+  aud:"Learners seeking remote-friendly healthcare administration roles.",
+  out:["Assign ICD-10-CM and CPT codes to outpatient records","Submit clean claims and work denials","Apply HIPAA rules to billing workflows"],
+  mods:[["Medical terminology",900],["ICD-10-CM",1500],["CPT and HCPCS",1500],["Billing and reimbursement",900],["Exam review",600]]},
+ {id:"pharmacy-technician",t:"Pharmacy Technician Program",cat:"allied",fmt:"Online program",hrs:null,credit:"Certificate + national exam prep",dur:"16 weeks online + 80 hour externship",price:1950,level:"Beginner",lead:"Pharmacist, RPh, with certified technician mentors",next:"2026-12-07",time:"Cohort starts every 8 weeks",
+  sum:"Drug classifications, calculations, sterile and non-sterile compounding basics, and pharmacy law.",
+  aud:"Learners entering retail, hospital or mail-order pharmacy.",
+  out:["Perform dosage and IV flow-rate calculations","Process prescriptions and insurance claims","Follow federal pharmacy law and controlled-substance rules"],
+  mods:[["Pharmacology by body system",1500],["Pharmacy calculations",1200],["Compounding and sterile technique",900],["Law and ethics",600],["Externship: 80 hours",4800]]},
+ {id:"hipaa-privacy-security",t:"HIPAA Privacy & Security",cat:"compliance",fmt:"On-demand",hrs:1,credit:"hour",dur:"60 minutes, self-paced",price:19,level:"All levels",lead:"Healthcare compliance officer, CHC",
+  sum:"Annual HIPAA training covering PHI, minimum necessary, breach reporting and secure messaging.",
+  aud:"Everyone who handles protected health information.",
+  out:["Identify PHI in paper, verbal and electronic forms","Apply the minimum necessary standard","Report a suspected breach correctly"],
+  mods:[["Privacy Rule essentials",20],["Security Rule and devices",20],["Breaches and reporting",20]]},
+ {id:"bloodborne-pathogens",t:"OSHA Bloodborne Pathogens",cat:"compliance",fmt:"On-demand",hrs:1,credit:"hour",dur:"60 minutes, self-paced",price:19,level:"All levels",lead:"Infection preventionist, MPH, CIC",
+  sum:"Annual bloodborne pathogens training: exposure control plans, PPE, sharps safety and post-exposure steps.",
+  aud:"Clinical staff with occupational exposure risk.",
+  out:["Describe transmission of HBV, HCV and HIV","Select PPE by task","Follow post-exposure evaluation steps"],
+  mods:[["Pathogens and transmission",20],["Exposure control and PPE",20],["After an exposure",20]]},
+ {id:"infection-prevention-control",t:"Infection Prevention & Control",cat:"compliance",fmt:"On-demand",hrs:4,credit:"contact hours",dur:"4 hours, self-paced",price:49,level:"Intermediate",lead:"Infection preventionist, MPH, CIC",
+  sum:"Standard and transmission-based precautions, hand hygiene auditing, device-associated infections and outbreak response.",
+  aud:"Nurses, infection control liaisons and long-term care staff.",
+  out:["Choose the correct isolation precautions","Apply CLABSI and CAUTI prevention bundles","Respond to a suspected outbreak"],
+  mods:[["Chain of infection",45],["Precautions and PPE",60],["Device-associated infections",75],["Outbreak response",60]]},
+ {id:"suicide-risk-assessment",t:"Suicide Risk Assessment & Prevention",cat:"behavioral",fmt:"On-demand",hrs:3,credit:"contact hours",dur:"3 hours, self-paced",price:45,level:"Intermediate",lead:"Psychiatric nurse practitioner, PMHNP-BC",feat:1,
+  sum:"Screen, assess and plan for safety using evidence-based tools. Meets suicide prevention training requirements in several states.",
+  aud:"Nurses, counselors, social workers and primary care clinicians.",
+  out:["Screen with the Columbia Protocol","Build a collaborative safety plan","Counsel on lethal means safety"],
+  mods:[["Risk and protective factors",45],["Screening and assessment tools",50],["Safety planning",45],["Care transitions and follow-up",40]]},
+ {id:"motivational-interviewing",t:"Motivational Interviewing Skills Lab",cat:"behavioral",fmt:"Live webinar",hrs:6,credit:"contact hours",dur:"Two 3-hour live sessions",price:129,level:"Intermediate",lead:"Licensed clinical social worker, LCSW, MINT trainer",next:"2026-12-02",time:"Dec 2 & Dec 9, 6:00 – 9:00 PM ET",
+  sum:"Practice OARS skills in breakout rooms with feedback. Useful for smoking cessation, diabetes and substance use conversations.",
+  aud:"Clinicians who counsel patients on behavior change.",
+  out:["Use open questions, affirmations, reflections and summaries","Recognize and evoke change talk","Respond to discord without arguing"],
+  mods:[["Spirit and core skills",90],["Evoking change talk",90],["Responding to discord",90],["Recorded practice and feedback",90]]}
+];
+const byId = Object.fromEntries(C.map(c=>[c.id,c]));
+const PASS = {
+  "pass-annual":{id:"pass-annual",t:"All-Access CE Pass (1 year)",price:149,isPass:true},
+};
+const PROMOS = {WELCOME10:{pct:10,label:"Welcome offer (10%)"},NURSESWEEK:{pct:15,label:"Nurses Week (15%)",cat:"nursing"}};
+const covered = c => c.fmt==="On-demand" && ["nursing","cme","compliance","behavioral"].includes(c.cat);
+
+/* ---------- state ---------- */
+const KEY="healthpath.v1";
+let S = {cart:[],user:null,enr:[],orders:[],pass:null,promo:null,notice:true,theme:"system"};
+try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
+let F = {q:"",cats:[],fmts:[],sort:"featured",maxPrice:4000};
+let CO = {method:"card",plan:6,errors:{}};
+let dashTab="learning";
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const money=n=>"$"+(Math.round(n*100)/100).toLocaleString("en-US",{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2});
+const money2=n=>"$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate=d=>new Date(d+(d.length===10?"T12:00:00":"")).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+const itemOf=id=>byId[id]||PASS[id];
+const hrsLabel=c=>c.hrs?`${c.hrs} ${c.credit}`:c.credit;
+const minutes=m=>m>=60?(m%60?`${Math.floor(m/60)} h ${m%60} min`:`${m/60} h`):`${m} min`;
+function toast(msg){const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2800);}
+function catChip(cat){return `<span class="cat" style="--c:${CATS[cat].color}">${esc(CATS[cat].short)}</span>`;}
+const groupPct=q=>q>=10?20:q>=5?15:0;
+const ICON={
+ card:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9.5h19M6 15h4"/></svg>',
+ split:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.5 6"/></svg>',
+ inv:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2.5h9l4 4v15H6z"/><path d="M9 11h7M9 15h7M9 7h3"/></svg>',
+ wallet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7l12-4v4M16 13.5h2"/></svg>',
+ team:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9.5" r="2.4"/><path d="M3 20c.6-3.4 3-5.5 6-5.5s5.4 2.1 6 5.5M15 15c2.8-.6 5.4 1 6 4"/></svg>',
+ lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>'
+};
+
+/* ---------- pricing ---------- */
+function cartLines(){
+  return S.cart.filter(l=>itemOf(l.id)).map(l=>{
+    const it=itemOf(l.id); const q=Math.max(1,l.qty|0);
+    const inPass = !it.isPass && S.pass && covered(it) && q===1;
+    const unit = inPass?0:it.price; const gp=it.isPass?0:groupPct(q);
+    const gross=unit*q; const gdisc=gross*gp/100;
+    return {id:l.id,it,q,unit,gross,gp,gdisc,inPass,net:gross-gdisc};
+  });
+}
+function totals(){
+  const L=cartLines(); const sub=L.reduce((a,l)=>a+l.gross,0); const group=L.reduce((a,l)=>a+l.gdisc,0);
+  let promo=0; const P=S.promo&&PROMOS[S.promo];
+  if(P){L.forEach(l=>{if(!l.it.isPass && (!P.cat||l.it.cat===P.cat)) promo+=l.net*P.pct/100;});}
+  promo=Math.round(promo*100)/100;
+  const total=Math.max(0,Math.round((sub-group-promo)*100)/100);
+  return {L,sub,group,promo,total,P};
+}
+function updateCartBadge(){const n=S.cart.reduce((a,l)=>a+(l.qty|0),0);const b=$("#cartCount");b.textContent=n;b.hidden=!n;}
+function addToCart(id,qty=1){
+  const ex=S.cart.find(l=>l.id===id);
+  if(ex) ex.qty=Math.min(200,ex.qty+qty); else S.cart.push({id,qty});
+  save();updateCartBadge();toast(`${itemOf(id).t} added to cart`);
+}
+const isEnrolled=id=>S.enr.some(e=>e.id===id);
+
+/* ---------- views ---------- */
+function courseCard(c){
+  const enrolled=isEnrolled(c.id);
+  return `<a class="card" href="#course-${c.id}">
+    ${catChip(c.cat)}
+    <h3>${esc(c.t)}</h3>
+    <p class="sum">${esc(c.sum)}</p>
+    <div class="meta"><span class="pill">${esc(c.fmt)}</span>${c.hrs?`<span class="pill hrs">${c.hrs} ${esc(c.credit.split(" /")[0])}</span>`:`<span class="pill">${esc(c.dur.split(" online")[0].split(",")[0])}</span>`}${c.next?`<span class="pill warn">Starts ${fmtDate(c.next)}</span>`:""}${enrolled?`<span class="pill ok">Enrolled</span>`:""}</div>
+    <div class="foot"><span class="price num">${money(c.price)}${c.price>=800?` <small>or ${money(Math.ceil(c.price/6))}/mo</small>`:""}</span><span class="muted" style="font-size:.85rem">${S.pass&&covered(c)?"Included in your pass":"View course →"}</span></div>
+  </a>`;
+}
+function viewHome(){
+  const counts=Object.keys(CATS).map(k=>[k,C.filter(c=>c.cat===k).length]);
+  const totalHrs=C.reduce((a,c)=>a+(c.hrs||0),0);
+  return `
+  <section class="hero"><div class="wrap">
+    <div>
+      <p class="eyebrow">Professional &amp; continuing education, online</p>
+      <h1 style="margin-top:14px">Continuing education that fits <span>between shifts.</span></h1>
+      <p class="lede">Earn contact hours and CME on your phone, finish life support with one in-person skills check, or train for a new healthcare career. Certificates are issued the moment you finish.</p>
+      <form class="hero-search" data-form="hero-search" role="search"><label class="sr" for="heroQ">Search courses</label><input id="heroQ" type="search" placeholder="Try “sepsis”, “BLS” or “coding”"><button class="btn" type="submit">Search</button></form>
+      <div class="hero-facts num"><div><b>${C.length}</b><span>courses and programs</span></div><div><b>${totalHrs}</b><span>credit hours available</span></div><div><b>${money(19)}</b><span>courses from</span></div></div>
+    </div>
+    <div class="wayfind" aria-label="Browse by category">
+      <div class="cap"><span class="eyebrow">Find your line</span><span class="eyebrow">${C.length} courses</span></div>
+      ${counts.map(([k,n],i)=>`<a class="wf" href="#catalog-${k}" style="--c:${CATS[k].color};--i:${i}"><span class="tape" style="width:${55+((i*37)%45)}%"></span><span class="lbl"><b>${esc(CATS[k].name)}</b><small>${n} course${n>1?"s":""} · ${esc(CATS[k].blurb)}</small></span></a>`).join("")}
+    </div>
+  </div></section>
+
+  <section><div class="wrap">
+    <div class="sec-head"><div><p class="eyebrow">How enrollment works</p><h2 style="margin-top:8px">From sign-up to certificate</h2></div></div>
+    <ol class="steps">
+      <li><h4>Choose a course</h4><p>Filter by profession, credit hours, format and price. Each course lists its outcomes and credit statement.</p></li>
+      <li><h4>Register and pay</h4><p>Create an account, then pay by card, PayPal, monthly installments or an employer invoice.</p></li>
+      <li><h4>Learn on any device</h4><p>Start immediately for on-demand courses. Live webinars and skills checks show their dates at checkout.</p></li>
+      <li><h4>Download your certificate</h4><p>Pass the post-test and your certificate appears in your dashboard, with your hours added to your CE tracker.</p></li>
+    </ol>
+  </div></section>
+
+  <section style="padding-top:0"><div class="wrap">
+    <div class="sec-head"><div><p class="eyebrow">Popular now</p><h2 style="margin-top:8px">Featured courses</h2></div><a class="btn ghost" href="#catalog">Browse all ${C.length}</a></div>
+    <div class="cards">${C.filter(c=>c.feat).map(courseCard).join("")}</div>
+  </div></section>
+
+  <section class="band"><div class="wrap">
+    <div class="org-grid">
+      <div><p class="eyebrow" style="color:inherit;opacity:.7">All-Access CE Pass</p><h2 style="margin-top:8px">Every on-demand CE course for ${money(149)} a year</h2>
+      <p class="muted" style="margin-top:14px;max-width:52ch">Covers ${C.filter(covered).length} on-demand courses in nursing, CME, compliance and behavioral health, worth ${C.filter(covered).reduce((a,c)=>a+c.hrs,0)} credit hours. New courses are added to the pass as they launch.</p>
+      <div class="row" style="margin-top:22px"><button class="btn" data-act="add" data-id="pass-annual">Get the pass</button><a class="btn ghost" href="#pricing">Compare plans</a></div></div>
+      <div class="stack" style="gap:0">${["nursing","cme","compliance","behavioral"].map(k=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid color-mix(in srgb,var(--bg) 20%,var(--ink))"><span class="cat" style="--c:${CATS[k].color};color:inherit">${esc(CATS[k].name)}</span><span class="mono num">${C.filter(c=>c.cat===k&&covered(c)).reduce((a,c)=>a+c.hrs,0)} h</span></div>`).join("")}</div>
+    </div>
+  </div></section>
+
+  <section><div class="wrap">
+    <div class="sec-head"><div><p class="eyebrow">Payment options</p><h2 style="margin-top:8px">Pay the way that works for you</h2></div></div>
+    <div class="pay-grid">
+      <div class="pay-item">${ICON.card}<h4>Card</h4><p>Visa, Mastercard, American Express and Discover.</p></div>
+      <div class="pay-item">${ICON.wallet}<h4>PayPal</h4><p>Check out with your PayPal balance or linked bank.</p></div>
+      <div class="pay-item">${ICON.split}<h4>Monthly installments</h4><p>Split orders of ${money(800)} or more into 3, 6 or 12 interest-free payments.</p></div>
+      <div class="pay-item">${ICON.inv}<h4>Employer invoice</h4><p>Net-30 invoice with a purchase order number for organizations.</p></div>
+      <div class="pay-item">${ICON.team}<h4>Group seats</h4><p>Save 15% on 5 or more seats and 20% on 10 or more.</p></div>
+    </div>
+  </div></section>
+
+  <section style="padding-top:0"><div class="wrap org-grid">
+    <div><p class="eyebrow">For hospitals, clinics and agencies</p><h2 style="margin-top:8px">Train your whole team on one invoice</h2><p class="muted" style="margin-top:14px;max-width:56ch">Assign annual compliance training, track completions, and keep copies of every certificate for surveys and audits.</p><div class="row" style="margin-top:20px"><a class="btn" href="#organizations">Group pricing</a><a class="btn ghost" href="#contact">Talk to us</a></div></div>
+    <div class="feature-list">
+      <div><h4>Seat-based billing</h4><p>Buy seats per course or a team pass, then assign learners.</p></div>
+      <div><h4>Completion reports</h4><p>See who finished, when, and how many hours they earned.</p></div>
+      <div><h4>Annual renewals</h4><p>Reminders go out before HIPAA, OSHA and BLS deadlines.</p></div>
+      <div><h4>Purchase orders</h4><p>Pay by invoice on net-30 terms with your PO number.</p></div>
+    </div>
+  </div></section>
+  ${faqBlock(5)}`;
+}
+
+function viewCatalog(preCat){
+  if(preCat && CATS[preCat]) F.cats=[preCat];
+  const opt=(group,key,label,n,color)=>`<label class="fopt"><input type="checkbox" data-filter="${group}" value="${key}" ${F[group].includes(key)?"checked":""}>${color?`<span class="sw" style="--c:${color}"></span>`:""}${esc(label)}<span class="n">${n}</span></label>`;
+  return `<section><div class="wrap">
+    <p class="eyebrow">Course catalog</p><h1 style="margin:8px 0 28px;font-size:clamp(2rem,4vw,2.8rem)">${F.cats.length===1?esc(CATS[F.cats[0]].name):"All courses"}</h1>
+    <div class="catalog">
+      <aside class="filters" aria-label="Filters">
+        <fieldset><legend class="eyebrow">Category</legend>${Object.entries(CATS).map(([k,v])=>opt("cats",k,v.name,C.filter(c=>c.cat===k).length,v.color)).join("")}</fieldset>
+        <fieldset><legend class="eyebrow">Format</legend>${FORMATS.map(f=>opt("fmts",f,f,C.filter(c=>c.fmt===f).length)).join("")}</fieldset>
+        <fieldset><legend class="eyebrow">Max price</legend><label class="f"><input type="range" id="maxPrice" min="20" max="4000" step="10" value="${F.maxPrice}" data-filter="maxPrice" style="accent-color:var(--accent)"><span class="hint num" id="maxPriceLbl">Up to ${money(F.maxPrice)}</span></label></fieldset>
+        <button class="linkbtn" data-act="clear-filters" style="justify-self:start;text-align:left">Clear all filters</button>
+      </aside>
+      <div style="min-width:0">
+        <div class="toolbar"><label class="sr" for="catQ">Search</label><input id="catQ" type="search" placeholder="Search by title, topic or profession" value="${esc(F.q)}" data-filter="q">
+          <label class="sr" for="sortSel">Sort</label><select id="sortSel" data-filter="sort">${[["featured","Featured"],["price-asc","Price: low to high"],["price-desc","Price: high to low"],["hrs-desc","Most credit hours"],["title","A–Z"]].map(([v,l])=>`<option value="${v}" ${F.sort===v?"selected":""}>${l}</option>`).join("")}</select></div>
+        <div id="results"></div>
+      </div>
+    </div>
+  </div></section>`;
+}
+function renderResults(){
+  const q=F.q.trim().toLowerCase();
+  let list=C.filter(c=>(!F.cats.length||F.cats.includes(c.cat))&&(!F.fmts.length||F.fmts.includes(c.fmt))&&c.price<=F.maxPrice&&(!q||(c.t+" "+c.sum+" "+c.aud+" "+CATS[c.cat].name).toLowerCase().includes(q)));
+  const s={"price-asc":(a,b)=>a.price-b.price,"price-desc":(a,b)=>b.price-a.price,"hrs-desc":(a,b)=>(b.hrs||0)-(a.hrs||0),"title":(a,b)=>a.t.localeCompare(b.t),"featured":(a,b)=>(b.feat||0)-(a.feat||0)}[F.sort];
+  list=list.slice().sort(s);
+  const el=$("#results"); if(!el) return;
+  el.innerHTML=`<p class="muted num" style="margin-bottom:14px;font-size:.9rem">${list.length} of ${C.length} courses</p>`+(list.length?`<div class="cards">${list.map(courseCard).join("")}</div>`:`<div class="empty"><h3 style="color:var(--ink)">No courses match these filters</h3><p style="margin-top:8px">Remove a filter or raise the maximum price.</p><button class="btn ghost sm" style="margin-top:16px" data-act="clear-filters">Clear all filters</button></div>`);
+}
+
+function viewCourse(id){
+  const c=byId[id]; if(!c) return viewNotFound();
+  const enrolled=isEnrolled(id); const inPass=S.pass&&covered(c);
+  const totalMin=c.mods.reduce((a,m)=>a+m[1],0);
+  const related=C.filter(x=>x.cat===c.cat&&x.id!==c.id).slice(0,3);
+  return `<div class="cd-top" style="--c:${CATS[c.cat].color}"><div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="#catalog">Courses</a><span>/</span><a href="#catalog-${c.cat}">${esc(CATS[c.cat].name)}</a><span>/</span><span>${esc(c.t)}</span></nav>
+      <div class="cd-grid"><div>${catChip(c.cat)}<h1 style="margin-top:12px;font-size:clamp(2rem,4.2vw,3rem)">${esc(c.t)}</h1><p class="lede">${esc(c.sum)}</p>
+      <div class="meta" style="margin-top:18px"><span class="pill">${esc(c.fmt)}</span><span class="pill">${esc(c.level)}</span>${c.hrs?`<span class="pill hrs">${hrsLabel(c)}</span>`:`<span class="pill hrs">${esc(c.credit)}</span>`}</div></div>
+      <div class="buybox">
+        <div class="price num" style="font-size:2rem">${inPass?`<s class="muted" style="font-size:1.2rem">${money(c.price)}</s> $0`:money(c.price)}</div>
+        ${c.price>=800?`<p class="muted" style="font-size:.88rem;margin-top:-8px">or ${money(Math.ceil(c.price/6*100)/100)}/month for 6 months, interest-free</p>`:""}
+        <dl class="facts num"><dt>Format</dt><dd>${esc(c.fmt)}</dd><dt>Time</dt><dd>${esc(c.dur)}</dd><dt>Credit</dt><dd>${esc(hrsLabel(c))}</dd>${c.next?`<dt>Next start</dt><dd>${fmtDate(c.next)}</dd>`:`<dt>Access</dt><dd>Start today, 12 months</dd>`}${c.time?`<dt>Schedule</dt><dd>${esc(c.time)}</dd>`:""}</dl>
+        ${enrolled?`<div class="alert info">You're enrolled in this course.</div><a class="btn block" href="#dashboard">Go to my learning</a>`:
+          inPass?`<button class="btn block" data-act="enroll-pass" data-id="${c.id}">Enroll with your pass</button>`:
+          `<div class="row" style="justify-content:space-between"><span style="font-weight:600;font-size:.9rem">Seats</span><div class="qty"><button aria-label="Fewer seats" data-act="qty-local" data-d="-1">−</button><input id="seatQty" type="number" min="1" max="200" value="1" aria-label="Seats"><button aria-label="More seats" data-act="qty-local" data-d="1">+</button></div></div>
+          <p class="muted" id="seatNote" style="font-size:.82rem;margin-top:-6px">Buying for a team? 5+ seats save 15%, 10+ save 20%.</p>
+          <button class="btn block" data-act="buy-now" data-id="${c.id}">Enroll now</button><button class="btn ghost block" data-act="add-qty" data-id="${c.id}">Add to cart</button>`}
+        <p class="secure">${ICON.lock} Secure checkout · Full refund within 14 days if you haven't started</p>
+      </div></div>
+  </div></div>
+  <section><div class="wrap cd-grid">
+    <div class="content-col">
+      <section><h2 style="font-size:1.6rem;margin-bottom:14px">What you'll be able to do</h2><ul class="outcomes">${c.out.map(o=>`<li>${esc(o)}</li>`).join("")}</ul></section>
+      <section style="--c:${CATS[c.cat].color}"><div class="sec-head" style="margin-bottom:16px"><h2 style="font-size:1.6rem">Course outline</h2><span class="muted mono num" style="font-size:.85rem">${c.mods.length} modules · ${minutes(totalMin)}</span></div>
+        <ol class="modules">${c.mods.map((m,i)=>`<li><b>${esc(m[0])}</b><br><small>Module ${i+1} · ${minutes(m[1])}</small></li>`).join("")}</ol></section>
+      <section><h2 style="font-size:1.6rem;margin-bottom:12px">Who it's for</h2><p>${esc(c.aud)}</p></section>
+      <section><h2 style="font-size:1.6rem;margin-bottom:12px">Faculty</h2><p>Course lead: ${esc(c.lead)}. All faculty disclose financial relationships before the course begins; none are relevant to this content unless listed in the course.</p></section>
+      <section><h2 style="font-size:1.6rem;margin-bottom:12px">Completion requirements</h2><p>${c.cat==="allied"?"Complete all modules, pass each module quiz with 75% or higher, and finish the supervised clinical hours where listed. A certificate of completion is issued at the end; national certification exams are scheduled and paid separately with the certifying body.":c.fmt==="Blended"?"Complete the online modules, then pass the in-person skills check with an instructor. Your provider card is issued after the skills check.":c.fmt==="Live webinar"?"Attend the full live session(s), take part in polls, and complete the evaluation within 7 days.":"Complete all modules, score 80% or higher on the post-test (unlimited attempts), and complete the course evaluation."}</p>
+      <div class="statement" style="margin-top:14px"><b style="color:var(--ink)">Credit statement.</b> ${c.hrs?`This activity awards ${c.hrs} ${esc(c.credit)}. `:""}Accreditation and approval numbers appear here once Health Path's provider approvals are issued. Learners are responsible for confirming that a course meets their licensing board's requirements.</div></section>
+    </div>
+    <div class="stack" style="gap:16px">${related.length?`<h3>More in ${esc(CATS[c.cat].name)}</h3>${related.map(courseCard).join("")}`:""}</div>
+  </div></section>`;
+}
+
+function viewCart(){
+  const T=totals();
+  if(!T.L.length) return `<section><div class="wrap"><h1 style="font-size:2.4rem">Your cart</h1><div class="empty" style="margin-top:24px"><h3 style="color:var(--ink)">Your cart is empty</h3><p style="margin-top:8px">Browse the catalog to add a course, or get the All-Access CE Pass.</p><div class="row" style="justify-content:center;margin-top:18px"><a class="btn" href="#catalog">Browse courses</a><button class="btn ghost" data-act="add" data-id="pass-annual">Add the pass</button></div></div></div></section>`;
+  return `<section><div class="wrap"><h1 style="font-size:2.4rem;margin-bottom:24px">Your cart</h1><div class="co-grid">
+    <div class="panel"><div>${T.L.map(l=>`<div class="line"><div style="min-width:0">${l.it.isPass?`<span class="cat">Membership</span>`:catChip(l.it.cat)}<div class="t" style="margin-top:6px">${l.it.isPass?esc(l.it.t):`<a href="#course-${l.id}" style="color:inherit;text-decoration:none">${esc(l.it.t)}</a>`}</div>
+      <div class="muted" style="font-size:.85rem">${l.it.isPass?"Renews yearly, cancel anytime":esc(l.it.fmt)+" · "+esc(hrsLabel(l.it))}${l.inPass?" · Included in your pass":""}${l.gp?` · <span style="color:var(--ok);font-weight:600">${l.gp}% group discount</span>`:""}</div>
+      <div class="ctrls">${l.it.isPass?"":`<div class="qty"><button aria-label="Fewer seats" data-act="qty" data-id="${l.id}" data-d="-1">−</button><input type="number" min="1" max="200" value="${l.q}" aria-label="Seats for ${esc(l.it.t)}" data-qty="${l.id}" id="q-${l.id}"><button aria-label="More seats" data-act="qty" data-id="${l.id}" data-d="1">+</button></div>`}<button class="linkbtn" data-act="remove" data-id="${l.id}">Remove</button></div></div>
+      <div class="num" style="text-align:right">${l.gp?`<s class="muted" style="font-size:.85rem">${money2(l.gross)}</s><br>`:""}<b>${money2(l.net)}</b></div></div>`).join("")}</div></div>
+    ${summaryPanel(T,true)}
+  </div></div></section>`;
+}
+function summaryPanel(T,withCta){
+  return `<aside class="panel" aria-label="Order summary"><h3>Order summary</h3>
+    <div class="totals num"><span>Subtotal</span><span>${money2(T.sub)}</span>${T.group?`<span class="disc">Group discount</span><span class="disc">−${money2(T.group)}</span>`:""}${T.promo?`<span class="disc">${esc(T.P.label)}</span><span class="disc">−${money2(T.promo)}</span>`:""}<span class="grand">Total</span><span class="grand">${money2(T.total)}</span></div>
+    <form data-form="promo" class="stack" style="gap:6px"><label class="f" for="promoIn">Promo code</label><div class="row" style="flex-wrap:nowrap"><input id="promoIn" type="text" placeholder="e.g. WELCOME10" value="${esc(S.promo||"")}" style="text-transform:uppercase"><button class="btn ghost sm" type="submit">Apply</button></div>${S.promo?`<span style="font-size:.82rem;color:var(--ok)">${esc(S.promo)} applied · <button type="button" class="linkbtn" data-act="clear-promo">remove</button></span>`:`<span class="muted" style="font-size:.8rem">Try WELCOME10 on your first order.</span>`}</form>
+    ${withCta?`<a class="btn block" href="#checkout">Continue to checkout</a><a class="btn ghost block" href="#catalog">Keep browsing</a>`:""}
+    <p class="secure">${ICON.lock} Payments are encrypted and processed by our payment provider. Health Path never stores card numbers.</p></aside>`;
+}
+
+function viewCheckout(){
+  const T=totals();
+  if(!T.L.length) return viewCart();
+  const u=S.user; const e=CO.errors;
+  const err=k=>e[k]?`<span class="ferr">${esc(e[k])}</span>`:"";
+  const val=k=>esc(CO[k]??(u&&u[k])??"");
+  const instOK=T.total>=800, invOK=true, free=T.total===0;
+  if(!instOK&&CO.method==="installments") CO.method="card";
+  const per=CO.plan?Math.ceil(T.total/CO.plan*100)/100:0;
+  return `<section><div class="wrap"><nav class="crumbs"><a href="#cart">Cart</a><span>/</span><span>Checkout</span></nav><h1 style="font-size:2.4rem;margin-bottom:24px">Checkout</h1>
+  <form data-form="checkout" class="co-grid" novalidate>
+   <div class="stack" style="gap:20px;min-width:0">
+    <div class="panel"><h3><span class="stepn">1</span>Learner details</h3>
+      ${u?`<div class="row" style="justify-content:space-between"><div><b>${esc(u.first+" "+u.last)}</b><div class="muted" style="font-size:.9rem">${esc(u.email)} · ${esc(u.profession)}${u.license?" · License "+esc(u.license):""}</div></div><button type="button" class="linkbtn" data-act="signout">Not you? Sign out</button></div>`:
+      `<p class="muted" style="font-size:.9rem;margin-top:-6px">Already have an account? <a href="#account">Sign in</a>. Otherwise we'll create one with these details.</p>
+      <div class="grid2"><label class="f">First name<input id="co-first" name="first" type="text" autocomplete="given-name" value="${val("first")}" class="${e.first?"err":""}">${err("first")}</label><label class="f">Last name<input id="co-last" name="last" type="text" autocomplete="family-name" value="${val("last")}" class="${e.last?"err":""}">${err("last")}</label></div>
+      <div class="grid2"><label class="f">Email<input id="co-email" name="email" type="email" autocomplete="email" value="${val("email")}" class="${e.email?"err":""}">${err("email")}</label><label class="f">Create password<span class="hint">At least 8 characters</span><input id="co-pass" name="pass" type="password" autocomplete="new-password" class="${e.pass?"err":""}">${err("pass")}</label></div>
+      <div class="grid3">${professionSelect("co-prof",CO.profession,e.profession)}<label class="f">License number<span class="hint">For your certificate</span><input id="co-lic" name="license" type="text" value="${val("license")}"></label><label class="f">License state<span class="hint">Optional</span><input id="co-state" name="state" type="text" maxlength="2" value="${val("state")}" style="text-transform:uppercase"></label></div>`}
+    </div>
+    <div class="panel"><h3><span class="stepn">2</span>Payment</h3>
+      ${free?`<div class="alert info">Nothing to pay. Your pass covers everything in this order.</div>`:`
+      <div class="paymethods" role="radiogroup" aria-label="Payment method">
+        ${pm("card","Card","Visa, Mastercard, Amex, Discover",true)}
+        ${pm("paypal","PayPal","Balance or linked bank",true)}
+        ${pm("installments","Monthly plan",instOK?"3, 6 or 12 payments, 0% interest":"For orders of $800 or more",instOK)}
+        ${pm("invoice","Employer invoice","Net 30 with PO number",invOK)}
+      </div>
+      <div id="pmBody">${pmBody(T,per,err,val)}</div>`}
+    </div>
+    <div class="panel"><h3><span class="stepn">3</span>Review and confirm</h3>
+      <label class="check"><input type="checkbox" id="co-terms" name="terms" ${CO.terms?"checked":""}><span>I agree to the <a href="#policies">enrollment terms and refund policy</a>. I understand I must confirm that each course meets my board's requirements.</span></label>${err("terms")}
+      <label class="check"><input type="checkbox" id="co-news" name="news" ${CO.news?"checked":""}><span>Email me renewal reminders and new course announcements (about twice a month).</span></label>
+      ${Object.keys(e).length?`<div class="alert bad" role="alert">Check the highlighted fields, then try again.</div>`:""}
+      <button class="btn block" type="submit" style="font-size:1.1rem">${free?"Complete enrollment":CO.method==="invoice"?`Request invoice for ${money2(T.total)}`:CO.method==="installments"?`Pay ${money2(per)} today`:CO.method==="paypal"?`Continue with PayPal · ${money2(T.total)}`:`Pay ${money2(T.total)}`}</button>
+      <p class="secure" style="justify-content:center">${ICON.lock} Preview build: no payment is processed.</p>
+    </div>
+   </div>
+   <div class="stack" style="gap:16px">${summaryPanel(T,false)}<div class="panel" style="gap:8px"><h4>In this order</h4>${T.L.map(l=>`<div class="row" style="justify-content:space-between;font-size:.9rem;flex-wrap:nowrap"><span style="min-width:0">${esc(l.it.t)}${l.q>1?` × ${l.q}`:""}</span><span class="num">${money2(l.net)}</span></div>`).join("")}</div></div>
+  </form></div></section>`;
+}
+function pm(v,t,s,ok){return `<label class="pm"><input type="radio" name="method" value="${v}" ${CO.method===v?"checked":""} ${ok?"":"disabled"}><b>${t}</b><small>${s}</small></label>`;}
+function professionSelect(id,cur,er){
+  const P=["Registered Nurse (RN)","Licensed Practical Nurse (LPN/LVN)","Nurse Practitioner (NP)","Physician (MD/DO)","Physician Assistant (PA)","Pharmacist","Medical Assistant","EMT / Paramedic","Student / career changer","Other healthcare professional"];
+  return `<label class="f">Profession<select id="${id}" name="profession" class="${er?"err":""}"><option value="">Select…</option>${P.map(p=>`<option ${cur===p?"selected":""}>${p}</option>`).join("")}</select>${er?`<span class="ferr">${esc(er)}</span>`:""}</label>`;
+}
+function pmBody(T,per,err,val){
+  if(CO.method==="card") return `<div class="stack" style="gap:14px">
+    <label class="f">Name on card<input id="cc-name" name="ccname" type="text" autocomplete="off" value="${val("ccname")}" class="${CO.errors.ccname?"err":""}">${err("ccname")}</label>
+    <label class="f">Card number<input id="cc-num" name="ccnum" type="text" inputmode="numeric" autocomplete="off" placeholder="1234 1234 1234 1234" value="${val("ccnum")}" class="${CO.errors.ccnum?"err":""}">${err("ccnum")}<span class="hint">Preview build: use the test number 4242 4242 4242 4242.</span></label>
+    <div class="grid3"><label class="f">Expiry<input id="cc-exp" name="ccexp" type="text" inputmode="numeric" autocomplete="off" placeholder="MM/YY" value="${val("ccexp")}" class="${CO.errors.ccexp?"err":""}">${err("ccexp")}</label><label class="f">CVC<input id="cc-cvc" name="cccvc" type="text" inputmode="numeric" autocomplete="off" placeholder="123" maxlength="4" class="${CO.errors.cccvc?"err":""}">${err("cccvc")}</label><label class="f">Billing ZIP<input id="cc-zip" name="cczip" type="text" autocomplete="off" value="${val("cczip")}" class="${CO.errors.cczip?"err":""}">${err("cczip")}</label></div></div>`;
+  if(CO.method==="paypal") return `<div class="alert info">You'll confirm the payment in a PayPal window, then return here to start learning.</div>`;
+  if(CO.method==="installments"){
+    const today=new Date(); const rows=[]; for(let i=0;i<CO.plan;i++){const d=new Date(today);d.setMonth(d.getMonth()+i);rows.push(`<tr><td>${i===0?"Today":d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</td><td>${money2(i===CO.plan-1?Math.round((T.total-per*(CO.plan-1))*100)/100:per)}</td></tr>`);}
+    return `<div class="stack" style="gap:14px"><div class="row" role="radiogroup" aria-label="Number of payments">${[3,6,12].map(n=>`<label class="pm" style="flex:1;min-width:110px"><input type="radio" name="plan" value="${n}" ${CO.plan===n?"checked":""}><b class="num">${n} payments</b><small class="num">${money2(Math.ceil(T.total/n*100)/100)}/mo</small></label>`).join("")}</div>
+    <table class="schedule"><tbody>${rows.join("")}</tbody></table><p class="muted" style="font-size:.85rem">0% interest, no fees. The first payment is charged today to the card below and the rest on the same day each month. Course access stays active while payments are current.</p>
+    <label class="f">Card number<input id="cc-num" name="ccnum" type="text" inputmode="numeric" autocomplete="off" placeholder="1234 1234 1234 1234" value="${val("ccnum")}" class="${CO.errors.ccnum?"err":""}">${err("ccnum")}<span class="hint">Preview build: use 4242 4242 4242 4242.</span></label>
+    <div class="grid3"><label class="f">Expiry<input id="cc-exp" name="ccexp" type="text" placeholder="MM/YY" autocomplete="off" value="${val("ccexp")}" class="${CO.errors.ccexp?"err":""}">${err("ccexp")}</label><label class="f">CVC<input id="cc-cvc" name="cccvc" type="text" placeholder="123" maxlength="4" autocomplete="off" class="${CO.errors.cccvc?"err":""}">${err("cccvc")}</label><label class="f">Name on card<input id="cc-name" name="ccname" type="text" autocomplete="off" value="${val("ccname")}" class="${CO.errors.ccname?"err":""}">${err("ccname")}</label></div></div>`;
+  }
+  return `<div class="stack" style="gap:14px"><div class="grid2"><label class="f">Organization<input id="inv-org" name="org" type="text" value="${val("org")}" class="${CO.errors.org?"err":""}">${err("org")}</label><label class="f">Billing email<input id="inv-email" name="billemail" type="email" value="${val("billemail")}" class="${CO.errors.billemail?"err":""}">${err("billemail")}</label></div>
+    <div class="grid2"><label class="f">PO number<span class="hint">Optional</span><input id="inv-po" name="po" type="text" value="${val("po")}"></label><label class="f">Tax ID / EIN<span class="hint">Optional</span><input id="inv-tax" name="tax" type="text" value="${val("tax")}"></label></div>
+    <p class="muted" style="font-size:.85rem">We email an invoice payable within 30 days by ACH, check or card. Learners get access right away.</p></div>`;
+}
+const luhn=n=>{let s=0,alt=false;for(let i=n.length-1;i>=0;i--){let d=+n[i];if(alt){d*=2;if(d>9)d-=9;}s+=d;alt=!alt;}return s%10===0;};
+
+function placeOrder(form){
+  const T=totals(); const fd=new FormData(form); const g=k=>(fd.get(k)||"").toString().trim();
+  ["first","last","email","license","state","ccname","ccexp","cczip","org","billemail","po","tax"].forEach(k=>{if(fd.has(k))CO[k]=g(k);});
+  CO.profession=fd.has("profession")?g("profession"):CO.profession; CO.terms=!!fd.get("terms"); CO.news=!!fd.get("news");
+  const ccnum=g("ccnum").replace(/\s+/g,""); if(fd.has("ccnum")) CO.ccnum=g("ccnum");
+  const e={}; const emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if(!S.user){ if(!CO.first)e.first="Enter your first name"; if(!CO.last)e.last="Enter your last name"; if(!emailRe.test(CO.email||""))e.email="Enter a valid email, like name@example.com"; if(g("pass").length<8)e.pass="Use at least 8 characters"; if(!CO.profession)e.profession="Choose your profession"; }
+  if(T.total>0 && (CO.method==="card"||CO.method==="installments")){
+    if(!CO.ccname)e.ccname="Enter the name on the card";
+    if(!/^\d{13,19}$/.test(ccnum)||!luhn(ccnum))e.ccnum="This card number isn't valid. Check the digits.";
+    const m=/^(\d{2})\s*\/\s*(\d{2})$/.exec(CO.ccexp||""); if(!m||+m[1]<1||+m[1]>12)e.ccexp="Use MM/YY"; else{const exp=new Date(2000+ +m[2],+m[1],0);if(exp<new Date())e.ccexp="This card has expired";}
+    if(!/^\d{3,4}$/.test(g("cccvc")))e.cccvc="3 or 4 digits";
+    if(CO.method==="card"&&!CO.cczip)e.cczip="Enter ZIP";
+  }
+  if(T.total>0 && CO.method==="invoice"){ if(!CO.org)e.org="Enter your organization"; if(!emailRe.test(CO.billemail||""))e.billemail="Enter a valid billing email"; }
+  if(!CO.terms)e.terms="Agree to the terms to continue";
+  CO.errors=e;
+  if(Object.keys(e).length){ render(); const first=document.querySelector(".err,.ferr"); first&&first.scrollIntoView({block:"center"}); return; }
+  if(!S.user) S.user={first:CO.first,last:CO.last,email:CO.email,profession:CO.profession,license:CO.license,state:(CO.state||"").toUpperCase(),goal:30,created:new Date().toISOString()};
+  const id="HP-"+Date.now().toString(36).toUpperCase().slice(-6)+Math.floor(Math.random()*90+10);
+  const method=T.total===0?"Pass / no charge":CO.method==="card"?`Card ending ${ccnum.slice(-4)}`:CO.method==="paypal"?"PayPal":CO.method==="installments"?`${CO.plan} monthly payments · card ending ${ccnum.slice(-4)}`:`Invoice to ${CO.org}${CO.po?" · PO "+CO.po:""}`;
+  const status=CO.method==="invoice"&&T.total>0?"Invoice sent · due in 30 days":CO.method==="installments"&&T.total>0?`Paid 1 of ${CO.plan}`:"Paid";
+  const order={id,date:new Date().toISOString(),items:T.L.map(l=>({id:l.id,t:l.it.t,q:l.q,net:l.net})),total:T.total,method,status,plan:CO.method==="installments"?CO.plan:null};
+  S.orders.unshift(order);
+  T.L.forEach(l=>{ if(l.it.isPass){const until=new Date();until.setFullYear(until.getFullYear()+1);S.pass={since:new Date().toISOString(),until:until.toISOString()};}
+    else if(!isEnrolled(l.id)) S.enr.push({id:l.id,done:0,at:new Date().toISOString(),order:id,seats:l.q}); });
+  S.cart=[];S.promo=null;S.lastOrder=id; CO={method:"card",plan:6,errors:{}}; save();updateCartBadge();
+  location.hash="confirmation";
+}
+function viewConfirmation(){
+  const o=S.orders.find(x=>x.id===S.lastOrder); if(!o) return viewNotFound();
+  return `<section><div class="wrap" style="max-width:760px">
+    <p class="eyebrow">Order ${esc(o.id)}</p><h1 style="margin-top:10px;font-size:clamp(2rem,4vw,2.8rem)">You're enrolled, ${esc(S.user.first)}.</h1>
+    <p class="muted" style="margin-top:12px;font-size:1.1rem">A receipt would go to ${esc(S.user.email)}. Your courses are ready in your dashboard.</p>
+    <div class="panel" style="margin-top:28px">${o.items.map(i=>`<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><span>${esc(i.t)}${i.q>1?` × ${i.q} seats`:""}</span><span class="num">${money2(i.net)}</span></div>`).join("")}
+      <div class="totals num" style="border-top:1px solid var(--line);padding-top:12px"><span>Payment</span><span>${esc(o.method)}</span><span>Status</span><span>${esc(o.status)}</span><span class="grand">Total</span><span class="grand">${money2(o.total)}</span></div></div>
+    ${o.items.some(i=>byId[i.id]&&byId[i.id].fmt==="Blended")?`<div class="alert warn" style="margin-top:16px">Your blended course needs an in-person skills check. Book a date from the course page in your dashboard after you finish the online part.</div>`:""}
+    ${o.items.some(i=>i.q>1)?`<div class="alert info" style="margin-top:16px">You bought extra seats. Invite your team from the dashboard's Team tab.</div>`:""}
+    <div class="row" style="margin-top:24px"><a class="btn" href="#dashboard">Start learning</a><a class="btn ghost" href="#catalog">Browse more courses</a></div>
+  </div></section>`;
+}
+
+function viewAccount(mode){
+  if(S.user) return viewDashboard();
+  const signup=mode!=="signin";
+  return `<section><div class="wrap" style="max-width:560px">
+    <h1 style="font-size:2.4rem">${signup?"Create your account":"Sign in"}</h1>
+    <p class="muted" style="margin-top:10px">${signup?"Track your CE hours, keep every certificate in one place, and get renewal reminders.":"Welcome back. Pick up where you left off."}</p>
+    <div class="tabs" style="margin-top:24px"><button class="${signup?"on":""}" data-act="acct-mode" data-m="signup">Create account</button><button class="${signup?"":"on"}" data-act="acct-mode" data-m="signin">Sign in</button></div>
+    <form class="panel" data-form="${signup?"signup":"signin"}" novalidate>
+      ${signup?`<div class="grid2"><label class="f">First name<input id="su-first" name="first" type="text" autocomplete="given-name" required></label><label class="f">Last name<input id="su-last" name="last" type="text" autocomplete="family-name" required></label></div>
+      <label class="f">Email<input id="su-email" name="email" type="email" autocomplete="email" required></label>
+      <label class="f">Password<span class="hint">At least 8 characters</span><input id="su-pass" name="pass" type="password" autocomplete="new-password" required></label>
+      ${professionSelect("su-prof","")}
+      <div class="grid2"><label class="f">License number<span class="hint">Printed on certificates</span><input id="su-lic" name="license" type="text"></label><label class="f">CE hours needed this renewal<span class="hint">Check your board</span><input id="su-goal" name="goal" type="number" min="0" max="200" value="30"></label></div>
+      <label class="check"><input type="checkbox" id="su-terms" name="terms"><span>I agree to the <a href="#policies">terms and privacy policy</a>.</span></label>`:
+      `<label class="f">Email<input id="si-email" name="email" type="email" autocomplete="email" required></label><label class="f">Password<input id="si-pass" name="pass" type="password" autocomplete="current-password" required></label>`}
+      <div id="acctErr"></div>
+      <button class="btn block" type="submit">${signup?"Create account":"Sign in"}</button>
+      <p class="muted" style="font-size:.82rem;text-align:center">Preview build: accounts are saved only in this browser.</p>
+    </form></div></section>`;
+}
+
+function viewDashboard(){
+  if(!S.user) return viewAccount("signin");
+  const u=S.user;
+  const done=S.enr.filter(e=>{const c=byId[e.id];return c&&e.done>=c.mods.length;});
+  const earned=done.reduce((a,e)=>a+(byId[e.id].hrs||0),0);
+  const pct=u.goal?Math.min(100,Math.round(earned/u.goal*100)):0;
+  const seatsExtra=S.enr.filter(e=>e.seats>1);
+  return `<section><div class="wrap">
+    <p class="eyebrow">My learning</p><h1 style="margin:8px 0 28px;font-size:clamp(2rem,4vw,2.6rem)">Hello, ${esc(u.first)}</h1>
+    <div class="dash-grid">
+      <aside class="stack" style="gap:16px">
+        <div class="panel"><h3>CE tracker</h3><div><span class="price num" style="font-size:2rem">${earned}</span> <span class="muted num">of ${u.goal} hours this renewal</span></div><div class="meter" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
+        <form data-form="goal" class="row" style="flex-wrap:nowrap"><label class="sr" for="goalIn">Hours needed</label><input id="goalIn" type="number" min="0" max="200" value="${u.goal}" style="width:90px"><button class="btn ghost sm" type="submit">Update goal</button></form>
+        <p class="muted" style="font-size:.82rem">Requirements vary by state and license type. Confirm yours with your board.</p></div>
+        <div class="panel" style="gap:8px"><h3>Profile</h3><p style="font-size:.92rem">${esc(u.first+" "+u.last)}<br><span class="muted">${esc(u.email)}<br>${esc(u.profession)}${u.license?"<br>License "+esc(u.license)+(u.state?" ("+esc(u.state)+")":""):""}</span></p>
+        <p style="font-size:.92rem;margin-top:6px"><b>Membership:</b> ${S.pass?`All-Access CE Pass until ${fmtDate(S.pass.until.slice(0,10))}`:`None · <button class="linkbtn" data-act="add" data-id="pass-annual">Add the pass</button>`}</p>
+        <button class="linkbtn" data-act="signout" style="text-align:left;margin-top:6px">Sign out</button></div>
+      </aside>
+      <div class="panel">
+        <div class="tabs" role="tablist">${[["learning","Courses"],["certs","Certificates"],["orders","Orders & billing"],["team","Team"]].map(([k,l])=>`<button role="tab" aria-selected="${dashTab===k}" class="${dashTab===k?"on":""}" data-act="dtab" data-t="${k}">${l}</button>`).join("")}</div>
+        ${dashTab==="learning"?(S.enr.length?S.enr.map(e=>{const c=byId[e.id]; if(!c) return ""; const n=c.mods.length, d=Math.min(e.done,n), p=Math.round(d/n*100);
+          return `<div class="enr"><div style="min-width:0">${catChip(c.cat)}<div style="font-family:var(--f-display);font-weight:800;font-size:1.1rem;margin-top:4px"><a href="#course-${c.id}" style="color:inherit;text-decoration:none">${esc(c.t)}</a></div><div class="muted num" style="font-size:.85rem">${d===n?"Completed":`Next: ${esc(c.mods[d][0])}`} · ${d}/${n} modules</div><div class="meter"><i style="width:${p}%"></i></div></div>
+          <div>${d===n?`<button class="btn sm" data-act="cert" data-id="${c.id}">View certificate</button>`:`<button class="btn sm" data-act="progress" data-id="${c.id}">${d?"Continue":"Start"}</button>`}</div></div>`;}).join(""):`<div class="empty"><h3 style="color:var(--ink)">No courses yet</h3><p style="margin-top:8px">Courses you enroll in appear here with your progress.</p><a class="btn sm" style="margin-top:14px" href="#catalog">Browse courses</a></div>`):""}
+        ${dashTab==="certs"?(done.length?`<div class="tablewrap"><table class="orders"><thead><tr><th>Course</th><th>Credit</th><th>Completed</th><th></th></tr></thead><tbody>${done.map(e=>{const c=byId[e.id];return `<tr><td>${esc(c.t)}</td><td class="num">${esc(hrsLabel(c))}</td><td class="num">${fmtDate((e.completed||e.at).slice(0,10))}</td><td><button class="linkbtn" data-act="cert" data-id="${c.id}">Open</button></td></tr>`;}).join("")}</tbody></table></div>`:`<div class="empty"><h3 style="color:var(--ink)">No certificates yet</h3><p style="margin-top:8px">Finish a course and its certificate appears here.</p></div>`):""}
+        ${dashTab==="orders"?(S.orders.length?`<div class="tablewrap"><table class="orders"><thead><tr><th>Order</th><th>Date</th><th>Items</th><th>Payment</th><th>Status</th><th style="text-align:right">Total</th></tr></thead><tbody>${S.orders.map(o=>`<tr><td class="mono">${esc(o.id)}</td><td class="num" style="white-space:nowrap">${fmtDate(o.date.slice(0,10))}</td><td>${o.items.map(i=>esc(i.t)+(i.q>1?` × ${i.q}`:"")).join("<br>")}</td><td>${esc(o.method)}</td><td><span class="pill ${o.status==="Paid"?"ok":"warn"}">${esc(o.status)}</span></td><td class="num" style="text-align:right">${money2(o.total)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty"><p>No orders yet.</p></div>`):""}
+        ${dashTab==="team"?(seatsExtra.length?`<p class="muted" style="margin-bottom:12px">Invite colleagues to the seats you bought. Each invite uses one seat.</p>${seatsExtra.map(e=>{const c=byId[e.id];const inv=e.invites||[];return `<div class="enr" style="grid-template-columns:1fr"><div><b>${esc(c.t)}</b> <span class="muted num">· ${inv.length+1} of ${e.seats} seats used</span>${inv.length?`<div class="muted" style="font-size:.88rem;margin-top:4px">${inv.map(esc).join(", ")}</div>`:""}</div>${inv.length+1<e.seats?`<form data-form="invite" data-id="${c.id}" class="row" style="flex-wrap:nowrap"><label class="sr" for="inv-${c.id}">Colleague's email</label><input id="inv-${c.id}" type="email" placeholder="colleague@hospital.org"><button class="btn ghost sm" type="submit">Invite</button></form>`:""}</div>`;}).join("")}`:`<div class="empty"><h3 style="color:var(--ink)">No team seats</h3><p style="margin-top:8px">Buy 2 or more seats of a course to invite colleagues. Groups of 5+ save 15%.</p><a class="btn ghost sm" style="margin-top:14px" href="#organizations">See group pricing</a></div>`):""}
+      </div>
+    </div></div></section>`;
+}
+
+function certModal(id){
+  const c=byId[id], e=S.enr.find(x=>x.id===id), u=S.user; if(!c||!e) return;
+  const certId="HP-C-"+(e.order||"X").replace("HP-","")+"-"+c.id.slice(0,3).toUpperCase();
+  openModal(`<div class="cert"><div class="in">
+    <p class="eyebrow" style="margin-top:10px">Certificate of completion</p>
+    <p class="muted">This certifies that</p><div class="who">${esc(u.first+" "+u.last)}</div>
+    <p class="muted">${esc(u.profession)}${u.license?" · License "+esc(u.license)+(u.state?" ("+esc(u.state)+")":""):""}</p>
+    <p style="max-width:48ch">successfully completed <b>${esc(c.t)}</b></p>
+    <div class="cgrid num"><div><span class="eyebrow">Credit awarded</span><br><b>${esc(hrsLabel(c))}</b></div><div><span class="eyebrow">Completed</span><br><b>${fmtDate((e.completed||new Date().toISOString()).slice(0,10))}</b></div><div><span class="eyebrow">Certificate ID</span><br><b class="mono">${esc(certId)}</b></div></div>
+    <p class="muted" style="font-size:.78rem;margin-top:8px">Health Path · Provider approval numbers will print here once issued. Keep this certificate for 4 years for board audits.</p>
+  </div></div><div class="row" style="justify-content:flex-end"><button class="btn ghost" data-act="close-modal">Close</button></div>`);
+}
+function openModal(html){const L=$("#layer");L.innerHTML=`<div class="modal" data-act="close-modal-bg"><div class="box" role="dialog" aria-modal="true">${html}</div></div>`;const b=L.querySelector(".box button");b&&b.focus();}
+function closeModal(){$("#layer").innerHTML="";}
+
+function viewPricing(){
+  const cov=C.filter(covered); const val=cov.reduce((a,c)=>a+c.price,0);
+  return `<section><div class="wrap">
+    <p class="eyebrow">Memberships</p><h1 style="margin:8px 0 12px;font-size:clamp(2rem,4vw,2.8rem)">Pay per course, or get everything for a year</h1>
+    <p class="muted" style="max-width:60ch;margin-bottom:32px">Bought separately, the ${cov.length} on-demand CE courses cost <span class="num">${money(val)}</span>. The pass covers all of them for <span class="num">${money(149)}</span>.</p>
+    <div class="plans">
+      <div class="plan"><p class="eyebrow">Single course</p><div class="amt num">From ${money(19)}</div><p class="muted">Pay only for what you need this renewal.</p><ul><li>12 months of access per course</li><li>Certificate on completion</li><li>CE tracker and reminders</li><li>Installments on programs over ${money(800)}</li></ul><a class="btn ghost block" href="#catalog">Browse courses</a></div>
+      <div class="plan feat"><p class="eyebrow" style="color:var(--accent)">Most chosen by nurses</p><h3>All-Access CE Pass</h3><div class="amt num">${money(149)}<small style="font-size:1rem;font-weight:500" class="muted"> / year</small></div><p class="muted">Every on-demand CE course, including new releases.</p><ul><li>${cov.length} courses, ${cov.reduce((a,c)=>a+c.hrs,0)} credit hours</li><li>Nursing, CME, compliance and behavioral health</li><li>20% off live webinars and blended life support</li><li>Cancel renewal anytime</li></ul><button class="btn block" data-act="add" data-id="pass-annual">${S.pass?"Renew pass":"Get the pass"}</button></div>
+      <div class="plan"><p class="eyebrow">Teams of 5+</p><h3>Organization plan</h3><div class="amt num">${money(99)}<small style="font-size:1rem;font-weight:500" class="muted"> / seat / year</small></div><p class="muted">The pass for every learner, with admin tools.</p><ul><li>Assign courses and due dates</li><li>Completion and hours reports</li><li>Invoice billing with PO</li><li>Dedicated account contact</li></ul><a class="btn ghost block" href="#organizations">Get a quote</a></div>
+    </div>
+    <div class="statement" style="margin-top:24px">Not included in the pass: career programs, live webinars and blended life support courses, which need instructors and in-person skills checks. Pass holders get 20% off these.</div>
+  </div></section>`;
+}
+
+function viewOrganizations(){
+  return `<section><div class="wrap org-grid">
+    <div><p class="eyebrow">For organizations</p><h1 style="margin:8px 0 14px;font-size:clamp(2rem,4vw,2.8rem)">Annual training for your whole staff</h1>
+      <p class="muted" style="max-width:56ch">Hospitals, clinics, home health agencies and long-term care facilities use group seats to cover required training and continuing education.</p>
+      <div class="tablewrap" style="margin-top:28px"><table class="orders num"><thead><tr><th>Seats per course</th><th>Discount</th><th>Example: Infection Prevention (${money(49)})</th></tr></thead><tbody>
+        <tr><td>1–4</td><td>List price</td><td>${money2(49)} per learner</td></tr>
+        <tr><td>5–9</td><td>15% off</td><td>${money2(49*.85)} per learner</td></tr>
+        <tr><td>10+</td><td>20% off</td><td>${money2(49*.8)} per learner</td></tr>
+        <tr><td>Organization plan</td><td>Pass for ${money(99)}/seat</td><td>All on-demand courses included</td></tr></tbody></table></div>
+      <div class="feature-list" style="margin-top:32px">
+        <div><h4>Compliance bundle</h4><p>HIPAA, OSHA Bloodborne Pathogens and Infection Prevention in one assignment.</p></div>
+        <div><h4>Onsite skills checks</h4><p>Our instructors come to you for BLS, ACLS and PALS skills checks at 10+ learners.</p></div>
+        <div><h4>Reports for surveyors</h4><p>Export completion records by learner, course and date.</p></div>
+        <div><h4>Flexible payment</h4><p>Card, ACH or net-30 invoice with your PO number.</p></div>
+      </div></div>
+    <form class="panel" data-form="quote" novalidate><h3>Request a group quote</h3>
+      <div class="grid2"><label class="f">Your name<input id="qt-name" name="name" type="text" required></label><label class="f">Work email<input id="qt-email" name="email" type="email" required></label></div>
+      <label class="f">Organization<input id="qt-org" name="org" type="text" required></label>
+      <div class="grid2"><label class="f">Type<select id="qt-type" name="type"><option>Hospital</option><option>Clinic or physician practice</option><option>Home health or hospice</option><option>Long-term care</option><option>School or training program</option><option>Other</option></select></label><label class="f">Number of learners<input id="qt-n" name="n" type="number" min="5" value="25"></label></div>
+      <label class="f">Courses or topics<textarea id="qt-msg" name="msg" rows="3" placeholder="e.g. annual HIPAA and OSHA for 40 staff, BLS for 12 nurses"></textarea></label>
+      <div id="quoteMsg"></div><button class="btn block" type="submit">Request quote</button></form>
+  </div></section>`;
+}
+
+function viewAccreditation(){
+  return `<section><div class="wrap"><div class="prose">
+    <p class="eyebrow">Accreditation &amp; credits</p><h1 style="font-size:clamp(2rem,4vw,2.8rem)">How credit works at Health Path</h1>
+    <p>Each course page lists the type and number of credit hours it awards. One contact hour equals 60 minutes of learning activity, calculated from module time, reading and the post-test.</p>
+    <h3 style="margin-top:12px">Credit types</h3>
+    <div class="tablewrap"><table class="orders"><thead><tr><th>Credit</th><th>Who it's for</th><th>Approval</th></tr></thead><tbody>
+      <tr><td>Nursing contact hours (NCPD)</td><td>RN, LPN/LVN, APRN</td><td class="muted">Accredited provider number to be added</td></tr>
+      <tr><td>CME hours</td><td>MD, DO, PA, NP</td><td class="muted">Accreditation statement to be added</td></tr>
+      <tr><td>Pharmacology hours</td><td>APRNs with prescriptive authority</td><td class="muted">Listed per course</td></tr>
+      <tr><td>Life support provider cards</td><td>All clinicians</td><td class="muted">Training center affiliation to be added</td></tr>
+      <tr><td>Career program certificates</td><td>New entrants</td><td class="muted">State approval and exam partners to be added</td></tr>
+    </tbody></table></div>
+    <div class="statement">Approval numbers, accreditor statements and state approvals print on this page, on every course page and on certificates once Health Path's approvals are issued.</div>
+    <h3 style="margin-top:12px">Your responsibilities</h3>
+    <p>Licensing boards set their own rules for which credits count and how many hours you need. Check your board before enrolling, and keep certificates for at least four years in case of an audit. Your dashboard keeps a copy of every certificate you earn.</p>
+    <h3 style="margin-top:12px">Disclosures</h3>
+    <p>All planners and faculty disclose financial relationships with ineligible companies. Relevant relationships are reviewed and mitigated before a course is released, and disclosed to learners at the start of the course.</p>
+  </div></div></section>`;
+}
+function viewPolicies(){
+  return `<section><div class="wrap"><div class="prose">
+    <p class="eyebrow">Policies</p><h1 style="font-size:clamp(2rem,4vw,2.8rem)">Refunds, transfers and privacy</h1>
+    <h3>Refunds</h3><p>On-demand courses: full refund within 14 days of purchase if you have not started the first module. Live webinars: full refund up to 7 days before the session, or transfer to a later date at no cost. Career programs: full refund before the cohort start date; after that, refunds are prorated by modules completed, less a ${money(100)} registration fee.</p>
+    <h3>Installment plans</h3><p>Payments are charged monthly to the card on file at 0% interest. If a payment fails, we retry after 3 days and email you. Access pauses after 15 days past due and resumes when the account is current.</p>
+    <h3>Employer invoices</h3><p>Invoices are due within 30 days. Learners keep access while the invoice is open.</p>
+    <h3>Certificates</h3><p>Certificates stay available in your dashboard. Replacement certificates for removed accounts can be requested from support.</p>
+    <h3>Privacy</h3><p>We use your license number only to print it on certificates and, where you ask us to, report completions to your board. We never sell personal information. Card details are handled by our payment processor and never stored on Health Path servers.</p>
+  </div></div></section>`;
+}
+const FAQ=[
+ ["How fast do I get my certificate?","On-demand courses issue a certificate as soon as you pass the post-test and submit the evaluation. Live webinars issue certificates within 2 business days after attendance is confirmed. Blended life support cards are issued after your skills check."],
+ ["Will these courses count toward my license renewal?","Each course lists its credit type and hours. Boards set their own rules, so confirm with your board that the credit type is accepted for your license and state before enrolling."],
+ ["Can I pay in installments?","Yes. Orders of $800 or more can be split into 3, 6 or 12 monthly payments at 0% interest. The first payment is charged at checkout."],
+ ["Can my employer pay?","Yes. Choose Employer invoice at checkout and enter your organization, billing email and PO number. We send a net-30 invoice and you can start right away."],
+ ["How do group discounts work?","Buy 5 to 9 seats of a course for 15% off, or 10 or more for 20% off. Then invite colleagues from the Team tab in your dashboard."],
+ ["What's included in the All-Access CE Pass?","Every on-demand course in nursing, CME, compliance and behavioral health for one year, plus 20% off live webinars and blended life support courses. Career programs are not included."],
+ ["Do I need special software?","No. Courses run in any current browser on a phone, tablet or computer. Live webinars need a microphone if you want to speak in breakout rooms."],
+ ["What if I can't attend a live session?","Transfer to a later date at no cost up to 7 days before, or ask for a full refund. Inside 7 days, contact us and we'll offer the recording with a shortened credit where allowed."]
+];
+function faqBlock(n){return `<section style="padding-top:0"><div class="wrap"><div class="sec-head"><div><p class="eyebrow">Questions</p><h2 style="margin-top:8px">Frequently asked</h2></div>${n?`<a class="btn ghost" href="#faq">All questions</a>`:""}</div><div style="max-width:860px">${FAQ.slice(0,n||FAQ.length).map(([q,a])=>`<details class="q"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div></div></section>`;}
+function viewFaq(){return `<section style="padding-bottom:0"><div class="wrap"><p class="eyebrow">Help center</p><h1 style="margin-top:8px;font-size:clamp(2rem,4vw,2.8rem)">Frequently asked questions</h1></div></section>${faqBlock(0).replace('style="padding-top:0"','style="padding-top:24px"')}`;}
+function viewContact(){
+  return `<section><div class="wrap org-grid">
+    <div class="stack" style="gap:18px"><p class="eyebrow">Contact</p><h1 style="font-size:clamp(2rem,4vw,2.8rem)">Talk to an enrollment advisor</h1>
+      <p class="muted" style="max-width:52ch">Questions about credit, payment plans or group billing? Advisors answer within one business day.</p>
+      <div class="panel" style="gap:10px"><div class="row" style="justify-content:space-between"><span class="muted">Email</span><span class="mono" style="user-select:all">admissions@healthpath.example</span></div><div class="row" style="justify-content:space-between"><span class="muted">Phone</span><span class="mono" style="user-select:all">+1 (555) 014-2200</span></div><div class="row" style="justify-content:space-between"><span class="muted">Hours</span><span>Mon–Fri, 8 AM – 6 PM ET</span></div><button class="btn ghost sm" data-act="copy" data-v="admissions@healthpath.example" style="align-self:start">Copy email address</button></div>
+      <p class="muted" style="font-size:.82rem">Placeholder contact details. Replace with Health Path's real email and phone before launch.</p></div>
+    <form class="panel" data-form="contact" novalidate><h3>Send a message</h3>
+      <div class="grid2"><label class="f">Name<input id="ct-name" name="name" type="text" required></label><label class="f">Email<input id="ct-email" name="email" type="email" required></label></div>
+      <label class="f">Topic<select id="ct-topic" name="topic"><option>Choosing a course</option><option>Payments and installments</option><option>Group or employer billing</option><option>Certificates and credit</option><option>Technical help</option></select></label>
+      <label class="f">Message<textarea id="ct-msg" name="msg" rows="5" required></textarea></label>
+      <div id="contactMsg"></div><button class="btn block" type="submit">Send message</button></form>
+  </div></section>`;
+}
+function viewNotFound(){return `<section><div class="wrap"><div class="empty"><h3 style="color:var(--ink)">We couldn't find that page</h3><p style="margin-top:8px">It may have moved. Start from the course catalog.</p><a class="btn sm" style="margin-top:14px" href="#catalog">Browse courses</a></div></div></section>`;}
+
+/* ---------- router ---------- */
+let acctMode="signup";
+function render(){
+  const h=(location.hash||"#home").slice(1);
+  let html, nav="";
+  if(!h||h==="home"){html=viewHome();}
+  else if(h==="catalog"){html=viewCatalog();nav="catalog";}
+  else if(h.startsWith("catalog-")){F.cats=[];html=viewCatalog(h.slice(8));nav="catalog";}
+  else if(h.startsWith("course-")){html=viewCourse(h.slice(7));nav="catalog";}
+  else if(h==="cart") html=viewCart();
+  else if(h==="checkout") html=viewCheckout();
+  else if(h==="confirmation") html=viewConfirmation();
+  else if(h==="account") html=viewAccount(acctMode);
+  else if(h==="dashboard") html=viewDashboard();
+  else if(h==="pricing"){html=viewPricing();nav="pricing";}
+  else if(h==="organizations"){html=viewOrganizations();nav="organizations";}
+  else if(h==="accreditation"){html=viewAccreditation();nav="accreditation";}
+  else if(h==="policies") html=viewPolicies();
+  else if(h==="faq"){html=viewFaq();nav="faq";}
+  else if(h==="contact"){html=viewContact();nav="contact";}
+  else html=viewNotFound();
+  $("#app").innerHTML=html;
+  document.querySelectorAll("nav.main a").forEach(a=>a.classList.toggle("on",a.dataset.nav===nav));
+  const ha=$("#hdrAccount"); ha.textContent=S.user?"My learning":"Sign in"; ha.href=S.user?"#dashboard":"#account";
+  if($("#results")) renderResults();
+  updateCartBadge();
+}
+let lastHash=location.hash;
+window.addEventListener("hashchange",()=>{ $("#nav").classList.remove("open"); if(!location.hash.startsWith("#checkout")) CO.errors={}; render(); if(location.hash!==lastHash) window.scrollTo(0,0); lastHash=location.hash;});
+
+/* ---------- events ---------- */
+document.addEventListener("click",ev=>{
+  const t=ev.target.closest("[data-act]"); if(!t) return;
+  const a=t.dataset.act, id=t.dataset.id;
+  if(a==="close-modal-bg"&&ev.target!==t) return;
+  switch(a){
+    case "dismiss-notice": S.notice=false;save();$("#notice").hidden=true;break;
+    case "menu": {const n=$("#nav");n.classList.toggle("open");t.setAttribute("aria-expanded",n.classList.contains("open"));break;}
+    case "theme": {const order=["system","light","dark"];S.theme=order[(order.indexOf(S.theme)+1)%3];applyTheme();save();break;}
+    case "add": addToCart(id,1); if(id==="pass-annual") location.hash="cart"; break;
+    case "add-qty": addToCart(id,Math.max(1,+$("#seatQty").value||1)); break;
+    case "buy-now": addToCart(id,Math.max(1,+$("#seatQty").value||1)); location.hash="checkout"; break;
+    case "qty-local": {const i=$("#seatQty");i.value=Math.min(200,Math.max(1,(+i.value||1)+ +t.dataset.d));seatNote();break;}
+    case "qty": {const l=S.cart.find(x=>x.id===id); if(l){l.qty=Math.min(200,Math.max(1,l.qty+ +t.dataset.d));save();render();} break;}
+    case "remove": S.cart=S.cart.filter(x=>x.id!==id);save();render();toast("Removed from cart");break;
+    case "clear-promo": S.promo=null;save();render();break;
+    case "clear-filters": F={q:"",cats:[],fmts:[],sort:"featured",maxPrice:4000}; if(location.hash!=="#catalog") location.hash="catalog"; else render(); break;
+    case "signout": S.user=null;save();toast("Signed out");location.hash="home";render();break;
+    case "acct-mode": acctMode=t.dataset.m;render();break;
+    case "dtab": dashTab=t.dataset.t;render();break;
+    case "progress": {const e=S.enr.find(x=>x.id===id),c=byId[id]; e.done=Math.min(c.mods.length,e.done+1); if(e.done===c.mods.length){e.completed=new Date().toISOString();save();render();toast(`Completed. ${c.hrs?c.hrs+" hours added to your tracker.":"Certificate issued."}`);certModal(id);} else {save();render();toast(`Module ${e.done} of ${c.mods.length} complete`);} break;}
+    case "cert": certModal(id);break;
+    case "close-modal": case "close-modal-bg": closeModal();break;
+    case "enroll-pass": if(!S.user){location.hash="account";break;} S.enr.push({id,done:0,at:new Date().toISOString(),order:"PASS",seats:1});save();toast("Enrolled with your pass");location.hash="dashboard";break;
+    case "copy": {const v=t.dataset.v; const ok=()=>toast("Email address copied"); try{navigator.clipboard.writeText(v).then(ok,()=>toast(v));}catch(e){toast(v);} break;}
+  }
+});
+function seatNote(){const q=+$("#seatQty").value||1,p=groupPct(q),n=$("#seatNote");if(n)n.textContent=p?`${p}% group discount applied at checkout.`:"Buying for a team? 5+ seats save 15%, 10+ save 20%.";}
+document.addEventListener("input",ev=>{
+  const t=ev.target;
+  if(t.dataset.filter==="q"){F.q=t.value;renderResults();}
+  if(t.dataset.filter==="maxPrice"){F.maxPrice=+t.value;$("#maxPriceLbl").textContent="Up to "+money(F.maxPrice);renderResults();}
+  if(t.id==="seatQty") seatNote();
+  if(t.name==="ccnum"){const d=t.value.replace(/\D/g,"").slice(0,19);t.value=d.replace(/(.{4})/g,"$1 ").trim();}
+  if(t.name==="ccexp"){let d=t.value.replace(/\D/g,"").slice(0,4);if(d.length>2)d=d.slice(0,2)+"/"+d.slice(2);t.value=d;}
+});
+document.addEventListener("change",ev=>{
+  const t=ev.target;
+  if(t.dataset.filter==="cats"||t.dataset.filter==="fmts"){const g=t.dataset.filter;F[g]=t.checked?[...F[g],t.value]:F[g].filter(x=>x!==t.value);renderResults();const h=$("main h1");if(h&&g==="cats")h.textContent=F.cats.length===1?CATS[F.cats[0]].name:"All courses";}
+  if(t.dataset.filter==="sort"){F.sort=t.value;renderResults();}
+  if(t.dataset.qty){const l=S.cart.find(x=>x.id===t.dataset.qty);if(l){l.qty=Math.min(200,Math.max(1,+t.value||1));save();render();}}
+  if(t.name==="method"||t.name==="plan"){ snapshotCheckout(); if(t.name==="method")CO.method=t.value; else CO.plan=+t.value; CO.errors={}; render(); }
+});
+function snapshotCheckout(){const f=document.querySelector('[data-form="checkout"]');if(!f)return;const fd=new FormData(f);["first","last","email","license","state","ccname","ccnum","ccexp","cczip","org","billemail","po","tax","profession"].forEach(k=>{if(fd.has(k))CO[k]=fd.get(k);});CO.terms=!!fd.get("terms");CO.news=!!fd.get("news");}
+document.addEventListener("submit",ev=>{
+  const f=ev.target; const kind=f.dataset.form; if(!kind) return; ev.preventDefault();
+  const fd=new FormData(f); const g=k=>(fd.get(k)||"").toString().trim(); const emailRe=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const msg=(sel,cls,text)=>{const el=f.querySelector(sel);if(el)el.innerHTML=`<div class="alert ${cls}" role="alert">${esc(text)}</div>`;};
+  if(kind==="hero-search"){F={q:$("#heroQ").value,cats:[],fmts:[],sort:"featured",maxPrice:4000};location.hash="catalog";}
+  if(kind==="promo"){snapshotCheckout();const code=$("#promoIn").value.trim().toUpperCase();if(PROMOS[code]){S.promo=code;save();render();toast(`${code} applied`);}else{toast(code?`${code} isn't a valid code`:"Enter a promo code");}}
+  if(kind==="checkout") placeOrder(f);
+  if(kind==="signup"){
+    if(!g("first")||!g("last")) return msg("#acctErr","bad","Enter your first and last name.");
+    if(!emailRe.test(g("email"))) return msg("#acctErr","bad","Enter a valid email, like name@example.com.");
+    if(g("pass").length<8) return msg("#acctErr","bad","Your password needs at least 8 characters.");
+    if(!g("profession")) return msg("#acctErr","bad","Choose your profession.");
+    if(!fd.get("terms")) return msg("#acctErr","bad","Agree to the terms to create your account.");
+    S.user={first:g("first"),last:g("last"),email:g("email"),profession:g("profession"),license:g("license"),state:"",goal:+g("goal")||30,created:new Date().toISOString()};S.known=S.user;save();toast("Account created");location.hash=S.cart.length?"checkout":"dashboard";
+  }
+  if(kind==="signin"){
+    if(!emailRe.test(g("email"))||!g("pass")) return msg("#acctErr","bad","Enter your email and password.");
+    if(S.known&&S.known.email.toLowerCase()===g("email").toLowerCase()){S.user=S.known;save();toast("Signed in");location.hash=S.cart.length?"checkout":"dashboard";}
+    else msg("#acctErr","bad","No account with that email on this device. Create an account instead.");
+  }
+  if(kind==="goal"){S.user.goal=Math.max(0,+$("#goalIn").value||0);S.known=S.user;save();render();toast("Goal updated");}
+  if(kind==="invite"){const id=f.dataset.id,inp=f.querySelector("input");if(!emailRe.test(inp.value.trim())){toast("Enter a valid email");return;}const e=S.enr.find(x=>x.id===id);e.invites=[...(e.invites||[]),inp.value.trim()];save();render();toast("Invite ready to send");}
+  if(kind==="quote"){if(!g("name")||!emailRe.test(g("email"))||!g("org")) return msg("#quoteMsg","bad","Enter your name, a valid work email and your organization.");msg("#quoteMsg","info",`Thanks, ${g("name")}. In this preview, requests aren't sent yet. Once the site is connected, an advisor replies within one business day.`);f.reset();}
+  if(kind==="contact"){if(!g("name")||!emailRe.test(g("email"))||!g("msg")) return msg("#contactMsg","bad","Enter your name, a valid email and a message.");msg("#contactMsg","info","Message ready. In this preview, messages aren't sent yet. Use the email address on the left to reach us.");f.reset();}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+function applyTheme(){const r=document.documentElement;if(S.theme==="system")r.removeAttribute("data-theme");else r.setAttribute("data-theme",S.theme);$("#themeBtn").textContent="Theme: "+S.theme;}
+if(!S.known&&S.user) S.known=S.user;
+if(!S.notice) $("#notice").hidden=true;
+applyTheme();
+render();
+})();
+</script>
+</body>
+</html>
